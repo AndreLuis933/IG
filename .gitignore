@@ -1,0 +1,34 @@
+*.db
+seleniumpictures/
+__pycache__/
+.vscode
+.conda
+_____tmp.py
+
+# *ipynb
+analize_teste.ipynb
+teste.ipynb
+
+# pikcle
+*.pkl
+
+#logs
+logs/
+
+# cookies
+cookies.json
+
+# workspace
+*.code-workspace
+
+a/
+
+# Environments
+.env
+.venv
+.idea
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
