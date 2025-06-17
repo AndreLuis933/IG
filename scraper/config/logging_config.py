@@ -2,7 +2,7 @@ import logging
 import os
 from pathlib import Path
 
-from utils.data import obter_data_atual
+from common.utils.data import obter_data_atual
 
 
 # Configuração básica de logging

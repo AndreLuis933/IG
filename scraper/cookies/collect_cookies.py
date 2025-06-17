@@ -22,7 +22,7 @@ def silent_get_frame(get_frame_func, selector):
     with redirect_stdout(io.StringIO()):
         try:
             return get_frame_func(selector)
-        except Exception :  # noqa: BLE001
+        except Exception:  # noqa: BLE001
             # Se ocorrer uma exceção, retorna um DataFrame vazio
             import pandas as pd
 
@@ -62,7 +62,7 @@ def load_city_page(driver, get_frame, city_name):
     df.loc[(df.aa_localName == "option") & (df.aa_innerText == city_name)].se_click.iloc[0]()
 
 
-def collect_cookies(output_file="cookies.json"):
+def collect_cookies(output_file="scraper/cookies.json"):
     """Coleta cookies para todas as cidades disponíveis no site.
 
     Args:

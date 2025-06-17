@@ -5,9 +5,9 @@ from functools import wraps
 import sqlalchemy
 from sqlalchemy import desc, tuple_
 
-from database.connection import Session
-from database.models import LogExecucao
-from utils.data import obter_data_atual
+from common.database.connection import Session
+from common.database.models import LogExecucao
+from common.utils.data import obter_data_atual
 
 logger = logging.getLogger(__name__)
 

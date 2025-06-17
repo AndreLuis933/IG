@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 
-from scraper.cookies.collect_cookies import collect_cookies
+#from scraper.cookies.collect_cookies import collect_cookies
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,11 @@ def load_cookie(formato="requests"):
         return None
 
     # Verificar se o arquivo existe
-    if not Path("cookies.json").is_file():
-        collect_cookies()
+    if not Path("scraper/cookies.json").is_file():
+        #collect_cookies()
+        pass
 
-    with open("cookies.json") as file:
+    with open("scraper/cookies.json") as file:
         try:
             # Tentar decodificar o JSON
             cookies_data = json.load(file)

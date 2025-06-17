@@ -1,12 +1,13 @@
-import asyncio
 import logging
+import os
 import time
+from contextlib import nullcontext
 
-import aiohttp
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from tqdm import tqdm
 
-from database import (
+from common.database import (
     close_gap,
     get_null_product_category,
     last_execution,
@@ -17,11 +18,12 @@ from database import (
     salvar_produto,
     set_cidades,
 )
+from common.utils.data import obter_data_atual
 from scraper.cookies.load_cookies import load_cookie
-from scraper.network.request_async import fetch_async
+from scraper.network.request import fetch
 from scraper.utils.categories import get_categories
-from utils.data import obter_data_atual
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
 
@@ -46,8 +48,8 @@ def verificar_tamanhos(nome, preco, link):
         raise ValueError(msg)
 
 
-async def process_url(session, url, cookies, categoria, cidade, pbar):
-    content = await fetch_async(session, url, cookies, pbar)
+def process_url(url, cookies, categoria, cidade, pbar):
+    content = fetch(url, cookies, pbar)
     if not content:
         return [], [], cidade
 
@@ -63,12 +65,12 @@ async def process_url(session, url, cookies, categoria, cidade, pbar):
     return produtos, precos, cidade
 
 
-async def baixar_site():
+def baixar_site():
     # se ja execultou hoje, nao execultar novamente
     execution = last_execution()
     if execution == obter_data_atual():
         logger.info(f"Ja executou hoje dia: {execution}")
-        return
+        # return
 
     inicio1 = time.time()
     cookies = load_cookie("requests")
@@ -85,15 +87,26 @@ async def baixar_site():
         categorias = len(urls) * [None]
 
     # fazer as requests de forma assíncrona
-    async with aiohttp.ClientSession() as session:
-        with tqdm(total=len(urls) * len(cookies), desc="Progresso") as pbar:
-            tasks = [
-                process_url(session, url, cookie, categoria, cidade, pbar)
-                for url, categoria in zip(urls, categorias)
-                for cidade, cookie in cookies
-            ]
-            resultados_brutos = await asyncio.gather(*tasks)
+    # async with aiohttp.ClientSession() as session:
+    #     with tqdm(total=len(urls) * len(cookies), desc="Progresso") as pbar:
+    #         tasks = [
+    #             process_url(session, url, cookie, categoria, cidade, pbar)
+    #             for url, categoria in zip(urls, categorias)
+    #             for cidade, cookie in cookies
+    #         ]
+    #         resultados_brutos = await asyncio.gather(*tasks)
+    mostrar_progresso = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
 
+
+    # Context manager condicional
+    progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progresso") if mostrar_progresso else nullcontext()
+
+    with progress_bar as pbar:
+        resultados_brutos = [
+            process_url(url, cookie, categoria, cidade, pbar)
+            for url, categoria in zip(urls, categorias)
+            for cidade, cookie in cookies
+        ]
     close_gap()
     dados_processados = processar_dados_brutos(resultados_brutos)
 
@@ -106,6 +119,6 @@ async def baixar_site():
     log_execucao()
 
     logger.info(f"Produtos disponives: {len(dados_processados.disponibilidades)}")
-
+    # 680
     fim1 = time.time()
     logger.info(f"Tempo de execução dos total: {(fim1 - inicio1) / 60:.2f} minutos.")

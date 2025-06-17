@@ -1,4 +1,4 @@
-from database.models import Cidade
+from common.database.models import Cidade
 
 from .utils import gerenciador_transacao
 

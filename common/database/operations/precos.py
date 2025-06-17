@@ -2,9 +2,9 @@ import logging
 
 from sqlalchemy import and_, func
 
-from database.connection import Session
-from database.models import Cidade, HistoricoPreco, Produto
-from utils.data import obter_data_atual
+from common.database.connection import Session
+from common.database.models import Cidade, HistoricoPreco, Produto
+from common.utils.data import obter_data_atual
 
 from .utils import atualizar_em_lotes, gerenciador_transacao, obter_mapeamento_id
 

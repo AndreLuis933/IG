@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
-from database import (
+from common.database import (
     get_null_product_category,
     get_produtos_sem_categoria,
     get_produtos_sem_imagens,

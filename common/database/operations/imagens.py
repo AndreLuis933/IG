@@ -1,10 +1,10 @@
 import logging
 
-from sqlalchemy import func, not_, or_
+from sqlalchemy import func, not_
 
-from database.connection import SUPABASE_CLIENT, Session
-from database.models import Imagem, Produto
-from utils.data import obter_data_atual
+from common.database.connection import SUPABASE_CLIENT, Session
+from common.database.models import Imagem, Produto
+from common.utils.data import obter_data_atual
 
 from .utils import gerenciador_transacao
 

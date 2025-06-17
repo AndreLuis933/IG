@@ -1,0 +1,38 @@
+app = 'ig-teste'
+primary_region = 'gru'
+kill_signal = 'SIGINT'
+kill_timeout = '5s'
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DATABASE_URL="postgresql+psycopg2://postgres.xzipxocmqgjtvfbuxafi:+1b&s1K>'Vg/_U&s@aws-0-sa-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
+  API_KEY_PUBLIC="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6aXB4b2NtcWdqdHZmYnV4YWZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1Mjg4NDgsImV4cCI6MjA2MTEwNDg0OH0.39D8ibCquHBozzOGAXqrSyhfw8oX3818duzVC6WbM6o"
+  PROJECT_URL="https://xzipxocmqgjtvfbuxafi.supabase.co"
+  SHOW_PROGRESS = "false"
+  FLY_API_TOKEN = ""
+
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  max_machines_running = 1
+
+  [http_service.concurrency]
+    type = 'connections'
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = "60s"
+  interval = "120s"
+  timeout = "30s"
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 2

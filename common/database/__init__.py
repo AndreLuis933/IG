@@ -35,9 +35,9 @@ from .operations.produtos import (
 # Importa utilitários
 from .operations.utils import (
     atualizar_em_lotes,
-    last_execution,
     gerenciador_transacao,
     inserir_com_conflito,
+    last_execution,
     obter_mapeamento_id,
 )
 
@@ -70,7 +70,6 @@ __all__ = [
     "Session",
     "atualizar_em_lotes",
     "close_gap",
-    "last_execution",
     "gerenciador_transacao",
     "get_count_products_without_images",
     "get_image_links",
@@ -81,6 +80,7 @@ __all__ = [
     "images_id",
     "init_db",
     "inserir_com_conflito",
+    "last_execution",
     "log_execucao",
     "obter_mapeamento_id",
     "price_change",

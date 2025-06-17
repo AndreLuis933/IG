@@ -1,7 +1,7 @@
 import logging
 
-from database.models import Cidade, DisponibilidadeCidade, Produto
-from utils.data import obter_data_atual
+from common.database.models import Cidade, DisponibilidadeCidade, Produto
+from common.utils.data import obter_data_atual
 
 from .utils import atualizar_em_lotes, gerenciador_transacao, obter_mapeamento_id
 

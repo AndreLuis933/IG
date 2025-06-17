@@ -1,0 +1,25 @@
+[project]
+name = "scraper"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "auto-download-undetected-chromedriver>=0.16",
+    "bs4>=0.0.2",
+    "cythonselenium>=0.13",
+    "dotenv>=0.9.9",
+    "flask>=3.1.1",
+    "psycopg2>=2.9.10",
+    "selenium>=4.33.0",
+    "sqlalchemy>=2.0.41",
+    "supabase>=2.15.3",
+    "tqdm>=4.67.1",
+    "undetected-chromedriver>=3.5.5",
+]
+
+[dependency-groups]
+dev = [
+    "poormansheadless>=0.10",
+    "tqdm>=4.67.1",
+]

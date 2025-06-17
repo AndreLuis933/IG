@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 from tqdm import tqdm
 
-from database import get_image_links, save_images
+from common.database import get_image_links, save_images
 from scraper.network.request_async import fetch_async
 
 
