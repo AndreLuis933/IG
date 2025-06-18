@@ -4,7 +4,6 @@ import time
 from contextlib import nullcontext
 
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 from tqdm import tqdm
 
 from common.database import (
@@ -23,7 +22,6 @@ from scraper.cookies.load_cookies import load_cookie
 from scraper.network.request import fetch
 from scraper.utils.categories import get_categories
 
-load_dotenv()
 logger = logging.getLogger(__name__)
 
 
@@ -70,7 +68,7 @@ def baixar_site():
     execution = last_execution()
     if execution == obter_data_atual():
         logger.info(f"Ja executou hoje dia: {execution}")
-        # return
+        return
 
     inicio1 = time.time()
     cookies = load_cookie("requests")
@@ -95,10 +93,9 @@ def baixar_site():
     #             for cidade, cookie in cookies
     #         ]
     #         resultados_brutos = await asyncio.gather(*tasks)
+
     mostrar_progresso = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
 
-
-    # Context manager condicional
     progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progresso") if mostrar_progresso else nullcontext()
 
     with progress_bar as pbar:
@@ -119,6 +116,6 @@ def baixar_site():
     log_execucao()
 
     logger.info(f"Produtos disponives: {len(dados_processados.disponibilidades)}")
-    # 680
+
     fim1 = time.time()
     logger.info(f"Tempo de execução dos total: {(fim1 - inicio1) / 60:.2f} minutos.")

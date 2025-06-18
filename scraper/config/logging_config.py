@@ -2,7 +2,11 @@ import logging
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from common.utils.data import obter_data_atual
+
+load_dotenv()
 
 
 # Configuração básica de logging
