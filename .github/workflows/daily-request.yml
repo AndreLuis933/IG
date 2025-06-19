@@ -1,0 +1,41 @@
+name: Daily HTTP Request
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 12 * * *'
+
+jobs:
+  make-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make HTTP Request with Retry
+        run: |
+          URL="https://ig-teste.fly.dev/run"
+          TENTATIVAS=0
+          MAX_TENTATIVAS=3
+          STATUS=0
+
+          while [ $TENTATIVAS -lt $MAX_TENTATIVAS ]; do
+            TENTATIVAS=$((TENTATIVAS + 1))
+            echo "Tentativa $TENTATIVAS de $MAX_TENTATIVAS"
+            
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            echo "Status recebido: $STATUS"
+            
+            if [ "$STATUS" -eq 202 ]; then
+              echo "Sucesso! Status 202 recebido."
+              break
+            fi
+            
+            if [ $TENTATIVAS -lt $MAX_TENTATIVAS ]; then
+              echo "Status diferente de 202, aguardando 1 minuto antes da próxima tentativa..."
+              sleep 60
+            fi
+          done
+
+          if [ "$STATUS" -ne 202 ]; then
+            echo "Falha após $MAX_TENTATIVAS tentativas. Último status: $STATUS"
+            exit 1
+          fi
+
+          echo "Concluído com sucesso"

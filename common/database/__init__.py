@@ -1,5 +1,5 @@
 # Importa configurações de conexão
-from .connection import DATABASE_TYPE, ENGINE, Session
+from .connection import ENGINE, SUPABASE_CLIENT, Session
 from .gap import close_gap, log_execucao
 
 # Importa modelos do banco de dados
@@ -53,8 +53,8 @@ init_db()
 # Define quais símbolos são exportados com "from database import *"
 
 __all__ = [
-    "DATABASE_TYPE",
     "ENGINE",
+    "SUPABASE_CLIENT",
     "Base",
     "Cidade",
     "DadosProcessados",

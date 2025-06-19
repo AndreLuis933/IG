@@ -28,13 +28,25 @@ def executar_script_background():
         logger.info("Script já está em execução, ignorando nova requisição.")
 
 
+@app.route("/")
+@app.route("/health")
+def health_check():
+    return {"status": "ok", "message": "Scraper service is running"}, 200
+
+
 @app.route("/run")
 def run_script():
-    thread = threading.Thread(target=executar_script_background)
-    thread.daemon = True
-    thread.start()
+    if script_lock.locked():
+        return {"message": "Script já está em execução"}, 409
 
-    return {"message": "Script iniciado em background!"}, 202
+    try:
+        thread = threading.Thread(target=executar_script_background)
+        thread.daemon = True
+        thread.start()
+        return {"message": "Script iniciado em background!"}, 202
+    except Exception:
+        logger.exception("Erro ao iniciar thread ")
+        return {"error": "Falha ao iniciar script"}, 500
 
 
 if __name__ == "__main__":
