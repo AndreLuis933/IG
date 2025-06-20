@@ -14,7 +14,6 @@ def close_gap(session):
 
     diff = obter_data_atual() - ultima_data
     if diff == timedelta(days=1) or diff == timedelta(days=0):
-        print("Tudo certo")
         return
 
     session.query(DisponibilidadeCidade).filter(DisponibilidadeCidade.data_fim.is_(None)).update(

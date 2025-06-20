@@ -21,7 +21,7 @@ def fetch(url, cookies=None, pbar=None, max_retries=8):
 
                 if attempt < max_retries:
                     delay = calculate_delay(attempt)
-                    logger.warning(f"Status {response.status_code} recebido. Aguardando {delay} segundos.")
+                    logger.warning(f"Status {response.status_code} recebido. Aguardando {delay:.2f} segundos.")
 
                     time.sleep(delay)
         except requests.RequestException:  # noqa: PERF203
