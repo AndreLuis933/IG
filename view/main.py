@@ -25,7 +25,12 @@ cidades_data = supabase.table("cidades").select("*").execute().data
 
 # Selectbox para escolher cidade
 nomes_cidades = [cidade["nome"] for cidade in cidades_data[1:-4]]
-cidade_escolhida = st.selectbox("Escolha uma cidade:", nomes_cidades)
+#cidade_escolhida = st.selectbox("Escolha uma cidade:", nomes_cidades)
+
+
+with st.sidebar:
+    st.header("Selecione a cidade")
+    cidade_escolhida = st.selectbox("",nomes_cidades)
 
 
 # Se quiser pegar o ID da cidade escolhida:
