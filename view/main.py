@@ -94,7 +94,7 @@ if cidade_id:
 
     # Extrair níveis
     nivel1 = sorted({cat.split("/")[0] for cat in categorias})
-    grupo_escolhido = st.selectbox("Grupo principal (opcional):", ["", *nivel1])
+    grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1])
 
     if grupo_escolhido:
         nivel2 = sorted(
@@ -104,7 +104,7 @@ if cidade_id:
                 if cat.startswith(grupo_escolhido + "/") and len(cat.split("/")) > 1
             },
         )
-        subgrupo_escolhido = st.selectbox("Subgrupo (opcional):", ["", *nivel2])
+        subgrupo_escolhido = st.selectbox("Categoria secundária:", ["", *nivel2])
     else:
         subgrupo_escolhido = ""
 
@@ -116,7 +116,7 @@ if cidade_id:
                 if cat.startswith(f"{grupo_escolhido}/{subgrupo_escolhido}") and len(cat.split("/")) > 2
             },
         )
-        item_escolhido = st.selectbox("Item (opcional):", ["", *nivel3])
+        item_escolhido = st.selectbox("Categoria terciária:", ["", *nivel3])
     else:
         item_escolhido = ""
 
