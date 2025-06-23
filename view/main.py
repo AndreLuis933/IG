@@ -96,9 +96,11 @@ def filtrar_por_data(df, data_inicio_filtro, data_fim_filtro):
 
 
 if cidade_id:
-    dados = carregar_dados_cidade(cidade_id)[
-        ["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]
-    ].dropna()
+    dados = (
+        carregar_dados_cidade(cidade_id)[["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]]
+        .dropna()
+        .sort_values(["data_inicio", "data_fim"], ascending=[True, False])
+    )
 
     st.subheader("Filtro por Data")
     col1, col2 = st.columns(2)
@@ -108,6 +110,7 @@ if cidade_id:
             "Data de início:",
             value=None,  # Sem valor padrão
             help="Selecione a data de início do período (opcional)",
+            format="DD/MM/YYYY",
         )
 
     with col2:
@@ -115,6 +118,7 @@ if cidade_id:
             "Data de fim:",
             value=None,  # Sem valor padrão
             help="Selecione a data de fim do período (opcional)",
+            format="DD/MM/YYYY",
         )
 
     # Aplicar filtro de data apenas se ambas as datas forem preenchidas
