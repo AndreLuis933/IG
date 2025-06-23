@@ -20,12 +20,13 @@ st.set_page_config(layout="wide")
 # Carregar dados
 cidades_data = supabase.table("cidades").select("*").execute().data
 # Barra de pesquisa para outra coisa
-busca = st.text_input("Buscar por produto:")
+
 
 # Selectbox para escolher cidade
 nomes_cidades = [cidade["nome"] for cidade in cidades_data[1:-4]]
 cidade_escolhida = st.selectbox("Escolha uma cidade:", nomes_cidades)
 
+busca = st.text_input("Buscar por produto:")
 # Se quiser pegar o ID da cidade escolhida:
 cidade_id = next((cidade["id"] for cidade in cidades_data if cidade["nome"] == cidade_escolhida), None)
 
@@ -66,7 +67,7 @@ def carregar_dados_cidade(cidade):
     df = pd.read_sql_query(historico_precos_df, DB_URL, params=(cidade, cidade, cidade))
     df["data_inicio"] = pd.to_datetime(df["data_inicio"]).dt.date
     df["data_fim"] = pd.to_datetime(df["data_fim"]).dt.date
-    df["data_fim"] = df["data_fim"].fillna(pd.Timestamp.now().date)
+    df["data_fim"] = df["data_fim"].fillna(pd.Timestamp.now().date())
     return df
 
 
