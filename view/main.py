@@ -26,7 +26,7 @@ cidades_data = supabase.table("cidades").select("*").execute().data
 nomes_cidades = [cidade["nome"] for cidade in cidades_data[1:-4]]
 cidade_escolhida = st.selectbox("Escolha uma cidade:", nomes_cidades)
 
-busca = st.text_input("Buscar por produto:")
+
 # Se quiser pegar o ID da cidade escolhida:
 cidade_id = next((cidade["id"] for cidade in cidades_data if cidade["nome"] == cidade_escolhida), None)
 
@@ -87,15 +87,24 @@ if cidade_id:
     dados = carregar_dados_cidade(cidade_id)[
         ["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]
     ].dropna()
-    if busca:
-        dados = dados[dados["nome"].str.contains(busca, case=False, na=False)]
-
-    # Extrair categorias do DataFrame filtrado
     categorias = dados["categoria_completa"].tolist()
+    nomes = dados["nome"].tolist()
+    nivel1 = sorted({cat.split("/")[0] for cat in categorias})
+
+    # Escolher tipo de filtro
+    tipo_filtro = st.radio("Escolha o tipo de busca:", ["Busca livre", "Seleção da lista"])
+    grupo_escolhido = ""
+    if tipo_filtro == "Busca livre":
+        busca = st.text_input("Buscar por produto:")
+        if busca:
+            dados = dados[dados["nome"].str.contains(busca, case=False, na=False)]
+        grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1])
+    else:
+        busca_nome = st.selectbox("Escolha um produto:", nomes)
+        if busca_nome:
+            dados = dados[dados["nome"] == busca_nome]  # Filtro exato para selectbox
 
     # Extrair níveis
-    nivel1 = sorted({cat.split("/")[0] for cat in categorias})
-    grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1])
 
     if grupo_escolhido:
         nivel2 = sorted(
