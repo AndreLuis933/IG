@@ -7,7 +7,7 @@ from sqlalchemy import desc, tuple_
 
 from common.database.connection import Session
 from common.database.models import LogExecucao
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def last_execution(session):
 
 
 def atualizar_em_lotes(session, pares, tabela, tamanho_lote=500):
-    hoje = obter_data_atual()
+    hoje = get_current_date()
     ontem = hoje - timedelta(days=1)
     atualizacoes = 0
     for i in range(0, len(pares), tamanho_lote):

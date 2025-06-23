@@ -2,7 +2,7 @@ import logging
 
 from common.database.connection import Session
 from common.database.models import Produto
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 
 from .utils import gerenciador_transacao
 
@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 @gerenciador_transacao
-def salvar_produto(session, produtos):
+def save_product(session, produtos):
     """Salva ou atualiza produtos no banco."""
     if not produtos:
         logger.info("Nenhum produto válido para inserir.")
         return
 
-    hoje = obter_data_atual()
+    hoje = get_current_date()
 
     links_recebidos = {p.link for p in produtos}
     produtos_atuais = {p.link: p for p in session.query(Produto).filter(Produto.link.in_(links_recebidos)).all()}

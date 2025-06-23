@@ -1,15 +1,15 @@
 # Importa configurações de conexão
 from .connection import ENGINE, SUPABASE_CLIENT, Session
-from .gap import close_gap, log_execucao
+from .gap import close_gap, log_execution
 
 # Importa modelos do banco de dados
 from .models import Base, Cidade, DisponibilidadeCidade, HistoricoPreco, Imagem, LogExecucao, Produto, init_db
 
 # Importa operações de cidades
-from .operations.cidades import set_cidades
+from .operations.cidades import set_cities
 
 # Importa operações de disponibilidade
-from .operations.disponibilidade import salvar_disponibilidade
+from .operations.disponibilidade import save_availability
 
 # Importa operações de imagens
 from .operations.imagens import (
@@ -21,14 +21,14 @@ from .operations.imagens import (
 )
 
 # Importa operações de preços
-from .operations.precos import price_change, salvar_preco, verificar_mudancas_preco
+from .operations.precos import price_change, save_price, verificar_mudancas_preco
 
 # Importa operações de produtos
 from .operations.produtos import (
     get_link_produto,
     get_null_product_category,
     get_produtos_sem_categoria,
-    salvar_produto,
+    save_product,
     update_categoria,
 )
 
@@ -42,7 +42,7 @@ from .operations.utils import (
 )
 
 # Importa processadores de dados
-from .processors import processar_dados_brutos
+from .processors import process_raw_data
 
 # Importa schemas (estruturas de dados)
 from .schemas import DadosProcessados, DisponibilidadeInfo, PrecoInfo, PrecoVariavel, ProdutoInfo
@@ -89,7 +89,7 @@ __all__ = [
     "salvar_preco",
     "salvar_produto",
     "save_images",
-    "set_cidades",
+    "set_cities",
     "update_categoria",
     "verificar_mudancas_preco",
 ]

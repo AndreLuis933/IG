@@ -1,7 +1,7 @@
 import logging
 
 from common.database.models import Cidade, DisponibilidadeCidade, Produto
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 
 from .utils import atualizar_em_lotes, gerenciador_transacao, obter_mapeamento_id
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @gerenciador_transacao
-def salvar_disponibilidade(session, disponibilidades):
+def save_availability(session, disponibilidades):
     """Atualiza o histórico de disponibilidade de produtos por cidade no banco de dados.
 
     Identifica mudanças na disponibilidade de produtos entre cidades, registrando quando
@@ -20,7 +20,7 @@ def salvar_disponibilidade(session, disponibilidades):
     if not disponibilidades:
         return
 
-    hoje = obter_data_atual()
+    hoje = get_current_date()
 
     links = {d.produto_link for d in disponibilidades}
     cidades = {d.cidade for d in disponibilidades}

@@ -4,7 +4,7 @@ from .utils import gerenciador_transacao
 
 
 @gerenciador_transacao
-def set_cidades(session, cidades):
+def set_cities(session, cidades):
     """Atualiza a tabela de cidades com a lista fornecida."""
     tabela_vazia = session.query(Cidade).count() == 0
 

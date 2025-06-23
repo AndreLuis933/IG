@@ -4,14 +4,14 @@ from sqlalchemy import and_, func
 
 from common.database.connection import Session
 from common.database.models import Cidade, HistoricoPreco, Produto
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 
 from .utils import atualizar_em_lotes, gerenciador_transacao, obter_mapeamento_id
 
 logger = logging.getLogger(__name__)
 
 @gerenciador_transacao
-def salvar_preco(session, precos_uniformes, precos_variaveis):
+def save_price(session, precos_uniformes, precos_variaveis):
     """Atualiza o histórico de preços de produtos no banco de dados.
 
     Processa preços uniformes (mesmo preço em todas as cidades) e variáveis (preços específicos
@@ -23,7 +23,7 @@ def salvar_preco(session, precos_uniformes, precos_variaveis):
         logger.info("Nenhum preço para salvar.")
         return
 
-    hoje = obter_data_atual()
+    hoje = get_current_date()
 
     todos_os_links = {p.link for p in precos_uniformes + precos_variaveis}
     todas_as_cidades = {p.cidade for p in precos_variaveis}

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 
 
 # Configuração básica de logging
@@ -13,7 +13,7 @@ def setup_logger(log_level=logging.INFO, log_dir="logs"):
         os.makedirs(log_dir)
 
     # Definir nome do arquivo de log com data
-    log_filename = f"{obter_data_atual()}.log"
+    log_filename = f"{get_current_date()}.log"
     log_filepath = os.path.join(log_dir, log_filename)
 
     # Configurar o logger

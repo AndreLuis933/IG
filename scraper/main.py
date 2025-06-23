@@ -5,7 +5,7 @@ from flask import Flask
 
 from scraper.config.logging_config import setup_logger
 from scraper.network.stop_machine import stop_fly_machine
-from scraper.site_downloader import baixar_site
+from scraper.site_downloader import download_site
 
 logger = setup_logger(log_level=logging.INFO)
 app = Flask(__name__)
@@ -17,7 +17,7 @@ def executar_script_background():
     if script_lock.acquire(blocking=False):
         try:
             logger.info("Iniciando execução do script em background")
-            baixar_site()
+            download_site()
             logger.info("Script executado com sucesso!")
         except Exception:
             logger.exception("Erro na execução do script: ")

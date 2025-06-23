@@ -10,14 +10,14 @@ from common.database import (
     close_gap,
     get_null_product_category,
     last_execution,
-    log_execucao,
-    processar_dados_brutos,
-    salvar_disponibilidade,
-    salvar_preco,
-    salvar_produto,
-    set_cidades,
+    log_execution,
+    process_raw_data,
+    save_availability,
+    save_price,
+    save_product,
+    set_cities,
 )
-from common.utils.data import obter_data_atual
+from common.utils.data import get_current_date
 from scraper.cookies.load_cookies import load_cookie
 from scraper.network.request import fetch
 from scraper.utils.categories import get_categories
@@ -25,97 +25,82 @@ from scraper.utils.categories import get_categories
 logger = logging.getLogger(__name__)
 
 
-def extrair_dados(soup):
-    # Nomes e links dos produtos
-    nome_link = [
+def extract_data(soup):
+    name_link = [
         i.find("a")
         for i in soup.find_all(class_="h-[72px] text-ellipsis overflow-hidden cursor-pointer mt-2 text-center")
     ]
-    nome = [nome.text.strip() for nome in nome_link if nome]
-    link = ["https://www.irmaosgoncalves.com.br" + link.get("href") for link in nome_link if link and link.get("href")]
+    name = [name.text.strip() for name in name_link if name]
+    link = ["https://www.irmaosgoncalves.com.br" + link.get("href") for link in name_link if link and link.get("href")]
 
-    # Preços dos produtos
-    preco = [a.text.strip() for a in soup.find_all("div", class_="text-xl text-secondary font-semibold h-7")]
+    price = [a.text.strip() for a in soup.find_all("div", class_="text-xl text-secondary font-semibold h-7")]
 
-    return nome, preco, link
+    return name, price, link
 
 
-def verificar_tamanhos(nome, preco, link):
-    if len(nome) != len(preco) != len(link):
-        msg = f"Nome={len(nome)}, Preço={len(preco)}, Link={len(link)}"
+def verify_sizes(name, price, link):
+    if len(name) != len(price) != len(link):
+        msg = f"Name={len(name)}, Price={len(price)}, Link={len(link)}"
         raise ValueError(msg)
 
 
-def process_url(url, cookies, categoria, cidade, pbar):
+def process_url(url, cookies, category, city, pbar):
     content = fetch(url, cookies, pbar)
     if not content:
-        return [], [], cidade
+        return [], [], city
 
-    # logger.info("%s - %s", cidade, url.split("?")[0].split("/")[-1])
     soup = BeautifulSoup(content, "html.parser")
-    nome_prod, preco, link = extrair_dados(soup)
+    product_name, price, link = extract_data(soup)
 
-    verificar_tamanhos(nome_prod, preco, link)
+    verify_sizes(product_name, price, link)
 
-    produtos = [(n, l, categoria) for n, l in zip(nome_prod, link)]
-    precos = [(l, float(p.replace("R$", "").replace(".", "").replace(",", ".").strip())) for p, l in zip(preco, link)]
+    products = [(n, l, category) for n, l in zip(product_name, link)]
+    prices = [(l, float(p.replace("R$", "").replace(".", "").replace(",", ".").strip())) for p, l in zip(price, link)]
 
-    return produtos, precos, cidade
+    return products, prices, city
 
 
-def baixar_site():
-    # se ja execultou hoje, nao execultar novamente
+def download_site():
     execution = last_execution()
-    if execution == obter_data_atual():
-        logger.info(f"Ja executou hoje dia: {execution}")
+    if execution == get_current_date():
+        logger.info(f"Already executed today: {execution}")
         return
 
-    inicio1 = time.time()
+    start_time = time.time()
     cookies = load_cookie("requests")
-    set_cidades([cidade for cidade, _ in cookies])
+    set_cities([city for city, _ in cookies])
 
-    url_base = "https://www.irmaosgoncalves.com.br"
-    urls_folha, urls_raiz, categorias = get_categories(url_base)
-    urls = urls_folha
+    base_url = "https://www.irmaosgoncalves.com.br"
+    leaf_urls, root_urls, categories = get_categories(base_url)
+    urls = leaf_urls
 
-    # se tiver menos de 100 produtos sem categoria baixar os produtos sem a categoria para ir mais rapido
-    logger.info(f"Produtos sem categoria: {len(get_null_product_category())}")
+    logger.info(f"Products without category: {len(get_null_product_category())}")
     if len(get_null_product_category()) < 10000:
-        urls = urls_raiz
-        categorias = len(urls) * [None]
+        urls = root_urls
+        categories = len(urls) * [None]
 
-    # fazer as requests de forma assíncrona
-    # async with aiohttp.ClientSession() as session:
-    #     with tqdm(total=len(urls) * len(cookies), desc="Progresso") as pbar:
-    #         tasks = [
-    #             process_url(session, url, cookie, categoria, cidade, pbar)
-    #             for url, categoria in zip(urls, categorias)
-    #             for cidade, cookie in cookies
-    #         ]
-    #         resultados_brutos = await asyncio.gather(*tasks)
+    show_progress = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
 
-    mostrar_progresso = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
-
-    progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progresso") if mostrar_progresso else nullcontext()
+    progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progress") if show_progress else nullcontext()
 
     with progress_bar as pbar:
-        resultados_brutos = [
-            process_url(url, cookie, categoria, cidade, pbar)
-            for url, categoria in zip(urls, categorias)
-            for cidade, cookie in cookies
+        raw_results = [
+            process_url(url, cookie, category, city, pbar)
+            for url, category in zip(urls, categories)
+            for city, cookie in cookies
         ]
-    close_gap()
-    dados_processados = processar_dados_brutos(resultados_brutos)
+        close_gap()
+        processed_data = process_raw_data(raw_results)
 
-    salvar_produto(dados_processados.produtos)
+        save_product(processed_data.products)
 
-    salvar_preco(dados_processados.precos_uniformes, dados_processados.precos_variaveis)
+        save_price(processed_data.uniform_prices, processed_data.variable_prices)
 
-    salvar_disponibilidade(dados_processados.disponibilidades)
+        save_availability(processed_data.availabilities)
 
-    log_execucao()
+        log_execution()
 
-    logger.info(f"Produtos disponives: {len(dados_processados.disponibilidades)}")
+        logger.info(f"Available products: {len(processed_data.availabilities)}")
 
-    fim1 = time.time()
-    logger.info(f"Tempo de execução dos total: {(fim1 - inicio1) / 60:.2f} minutos.")
+        end_time = time.time()
+        logger.info(f"Total execution time: {(end_time - start_time) / 60:.2f} minutes.")

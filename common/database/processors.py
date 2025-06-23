@@ -3,7 +3,7 @@ from collections import defaultdict
 from .schemas import DadosProcessados, DisponibilidadeInfo, PrecoInfo, PrecoVariavel, ProdutoInfo
 
 
-def processar_dados_brutos(resultados):
+def process_raw_data(resultados):
     produtos: set[ProdutoInfo] = set()
     precos_por_link = defaultdict(list)
     disponibilidades = []
