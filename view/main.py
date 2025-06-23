@@ -1,4 +1,5 @@
 import os
+from datetime import date, datetime
 
 import pandas as pd
 import plotly.express as px
@@ -83,10 +84,47 @@ def filtrar_categoria(cat):
     return not (item_escolhido and len(partes) <= 2)
 
 
+def filtrar_por_data(df, data_inicio_filtro, data_fim_filtro):
+    """Filtra o DataFrame baseado no intervalo de datas.
+    Considera registros que tenham sobreposição com o período selecionado.
+    """
+    if data_inicio_filtro and data_fim_filtro:
+        # Filtrar registros que tenham sobreposição com o período selecionado
+        mask = (df["data_inicio"] <= data_fim_filtro) & (df["data_fim"] >= data_inicio_filtro)
+        return df[mask]
+    return df
+
+
 if cidade_id:
     dados = carregar_dados_cidade(cidade_id)[
         ["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]
     ].dropna()
+
+    st.subheader("Filtro por Data")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        data_inicio_filtro = st.date_input(
+            "Data de início:",
+            value=None,  # Sem valor padrão
+            help="Selecione a data de início do período (opcional)",
+        )
+
+    with col2:
+        data_fim_filtro = st.date_input(
+            "Data de fim:",
+            value=None,  # Sem valor padrão
+            help="Selecione a data de fim do período (opcional)",
+        )
+
+    # Aplicar filtro de data apenas se ambas as datas forem preenchidas
+    if data_inicio_filtro and data_fim_filtro:
+        if data_inicio_filtro > data_fim_filtro:
+            st.error("A data de início deve ser anterior à data de fim!")
+        else:
+            dados = filtrar_por_data(dados, data_inicio_filtro, data_fim_filtro)
+            st.info(f"Mostrando dados de {data_inicio_filtro} até {data_fim_filtro}")
+
     categorias = dados["categoria_completa"].tolist()
     nomes = dados["nome"].tolist()
     nivel1 = sorted({cat.split("/")[0] for cat in categorias})
