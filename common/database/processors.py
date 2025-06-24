@@ -30,8 +30,8 @@ def process_raw_data(resultados):
                 precos_variaveis.append(PrecoVariavel(link=link, preco=preco, cidade=cidade))
 
     return DadosProcessados(
-        produtos=list(produtos),
-        precos_uniformes=precos_uniformes,
-        precos_variaveis=precos_variaveis,
-        disponibilidades=disponibilidades,
+        products=list(produtos),
+        uniform_prices=precos_uniformes,
+        variable_prices=precos_variaveis,
+        availabilities=disponibilidades,
     )

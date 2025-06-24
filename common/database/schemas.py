@@ -26,7 +26,7 @@ class ProdutoInfo(NamedTuple):
 
 
 class DadosProcessados(NamedTuple):
-    produtos: list[ProdutoInfo]
-    precos_uniformes: list[PrecoInfo]
-    precos_variaveis: list[PrecoVariavel]
-    disponibilidades: list[DisponibilidadeInfo]
+    products: list[ProdutoInfo]
+    uniform_prices: list[PrecoInfo]
+    variable_prices: list[PrecoVariavel]
+    availabilities: list[DisponibilidadeInfo]

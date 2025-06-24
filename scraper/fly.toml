@@ -7,9 +7,6 @@ kill_timeout = '5s'
   dockerfile = "Dockerfile"
 
 [env]
-  DATABASE_URL="postgresql+psycopg2://postgres.xzipxocmqgjtvfbuxafi:+1b&s1K>'Vg/_U&s@aws-0-sa-east-1.pooler.supabase.com:6543/postgres?sslmode=require"
-  API_KEY_PUBLIC="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6aXB4b2NtcWdqdHZmYnV4YWZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1Mjg4NDgsImV4cCI6MjA2MTEwNDg0OH0.39D8ibCquHBozzOGAXqrSyhfw8oX3818duzVC6WbM6o"
-  PROJECT_URL="https://xzipxocmqgjtvfbuxafi.supabase.co"
   SHOW_PROGRESS = "false"
   FLY_APP_NAME = "ig-teste"
 

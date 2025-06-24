@@ -1,9 +1,7 @@
 import os
-from datetime import date, datetime
 
 import pandas as pd
 import plotly.express as px
-import requests
 import streamlit as st
 from dotenv import load_dotenv
 from supabase import create_client
@@ -17,25 +15,6 @@ supabase = create_client(
 DB_URL = os.environ.get("DATABASE_URL")
 
 st.set_page_config(layout="wide")
-
-# Carregar dados
-cidades_data = supabase.table("cidades").select("*").execute().data
-# Barra de pesquisa para outra coisa
-
-
-# Selectbox para escolher cidade
-nomes_cidades = [cidade["nome"] for cidade in cidades_data[1:-4]]
-#cidade_escolhida = st.selectbox("Escolha uma cidade:", nomes_cidades)
-
-
-with st.sidebar:
-    st.header("Selecione a cidade")
-    cidade_escolhida = st.selectbox("",nomes_cidades)
-
-
-# Se quiser pegar o ID da cidade escolhida:
-cidade_id = next((cidade["id"] for cidade in cidades_data if cidade["nome"] == cidade_escolhida), None)
-
 
 @st.cache_data
 def carregar_dados_cidade(cidade):
@@ -77,7 +56,6 @@ def carregar_dados_cidade(cidade):
     return df
 
 
-# Função para filtrar categorias conforme seleção
 def filtrar_categoria(cat):
     partes = cat.split("/")
     if grupo_escolhido and partes[0] != grupo_escolhido:
@@ -100,84 +78,84 @@ def filtrar_por_data(df, data_inicio_filtro, data_fim_filtro):
     return df
 
 
-if cidade_id:
-    dados = (
-        carregar_dados_cidade(cidade_id)[["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]]
-        .dropna()
-        .sort_values(["data_inicio", "data_fim"], ascending=[True, False])
+cidades_data = supabase.table("cidades").select("*").execute().data
+
+nomes_cidades = [cidade["nome"] for cidade in cidades_data[1:-4]]
+
+with st.sidebar:
+    cidade_escolhida = st.selectbox("Selecione a cidade", nomes_cidades)
+
+cidade_id = next((cidade["id"] for cidade in cidades_data if cidade["nome"] == cidade_escolhida), None)
+
+
+dados = carregar_dados_cidade(cidade_id).dropna().sort_values(["data_inicio", "data_fim"], ascending=[True, False])
+
+st.subheader("Filtro por Data")
+col1, col2 = st.columns(2)
+
+with col1:
+    data_inicio_filtro = st.date_input(
+        "Data de início:",
+        value=None,
+        help="Selecione a data de início do período (opcional)",
+        format="DD/MM/YYYY",
     )
 
-    st.subheader("Filtro por Data")
-    col1, col2 = st.columns(2)
+with col2:
+    data_fim_filtro = st.date_input(
+        "Data de fim:",
+        value=None,
+        help="Selecione a data de fim do período (opcional)",
+        format="DD/MM/YYYY",
+    )
 
-    with col1:
-        data_inicio_filtro = st.date_input(
-            "Data de início:",
-            value=None,  # Sem valor padrão
-            help="Selecione a data de início do período (opcional)",
-            format="DD/MM/YYYY",
-        )
-
-    with col2:
-        data_fim_filtro = st.date_input(
-            "Data de fim:",
-            value=None,  # Sem valor padrão
-            help="Selecione a data de fim do período (opcional)",
-            format="DD/MM/YYYY",
-        )
-
-    # Aplicar filtro de data apenas se ambas as datas forem preenchidas
-    if data_inicio_filtro and data_fim_filtro:
-        if data_inicio_filtro > data_fim_filtro:
-            st.error("A data de início deve ser anterior à data de fim!")
-        else:
-            dados = filtrar_por_data(dados, data_inicio_filtro, data_fim_filtro)
-            st.info(f"Mostrando dados de {data_inicio_filtro} até {data_fim_filtro}")
-
-    categorias = dados["categoria_completa"].tolist()
-    nomes = dados["nome"].tolist()
-    nivel1 = sorted({cat.split("/")[0] for cat in categorias})
-
-    # Escolher tipo de filtro
-    tipo_filtro = st.radio("Escolha o tipo de busca:", ["Busca livre", "Seleção da lista"])
-    grupo_escolhido = ""
-    if tipo_filtro == "Busca livre":
-        busca = st.text_input("Buscar por produto:")
-        if busca:
-            dados = dados[dados["nome"].str.contains(busca, case=False, na=False)]
-        grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1])
+if data_inicio_filtro and data_fim_filtro:
+    if data_inicio_filtro > data_fim_filtro:
+        st.error("A data de início deve ser anterior à data de fim!")
     else:
-        busca_nome = st.selectbox("Escolha um produto:", nomes)
-        if busca_nome:
-            dados = dados[dados["nome"] == busca_nome]  # Filtro exato para selectbox
+        dados = filtrar_por_data(dados, data_inicio_filtro, data_fim_filtro)
+        st.info(f"Mostrando dados de {data_inicio_filtro} até {data_fim_filtro}")
 
-    # Extrair níveis
+categorias = dados["categoria_completa"].tolist()
+nomes = dados["nome"].sort_values(ascending=True).drop_duplicates().tolist()
+nivel1 = sorted({cat.split("/")[0] for cat in categorias})
 
-    if grupo_escolhido:
-        nivel2 = sorted(
-            {
-                cat.split("/")[1]
-                for cat in categorias
-                if cat.startswith(grupo_escolhido + "/") and len(cat.split("/")) > 1
-            },
-        )
-        subgrupo_escolhido = st.selectbox("Categoria secundária:", ["", *nivel2])
-    else:
-        subgrupo_escolhido = ""
+tipo_filtro = st.radio("Escolha o tipo de busca:", ["Busca livre", "Seleção da lista"])
+grupo_escolhido = ""
+if tipo_filtro == "Busca livre":
+    busca = st.text_input("Buscar por produto:")
+    if busca:
+        dados = dados[dados["nome"].str.contains(busca, case=False, na=False)]
+    grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1])
+else:
+    busca_nome = st.selectbox("Escolha um produto:", nomes)
+    if busca_nome:
+        dados = dados[dados["nome"] == busca_nome]
 
-    if grupo_escolhido and subgrupo_escolhido:
-        nivel3 = sorted(
-            {
-                cat.split("/")[2]
-                for cat in categorias
-                if cat.startswith(f"{grupo_escolhido}/{subgrupo_escolhido}") and len(cat.split("/")) > 2
-            },
-        )
-        item_escolhido = st.selectbox("Categoria terciária:", ["", *nivel3])
-    else:
-        item_escolhido = ""
 
-    # Filtrar o DataFrame conforme seleção de categoria
-    dados_filtrados = dados[dados["categoria_completa"].apply(filtrar_categoria)]
+if grupo_escolhido:
+    nivel2 = sorted(
+        {cat.split("/")[1] for cat in categorias if cat.startswith(grupo_escolhido + "/") and len(cat.split("/")) > 1},
+    )
+    subgrupo_escolhido = st.selectbox("Categoria secundária:", ["", *nivel2])
+else:
+    subgrupo_escolhido = ""
 
-    st.dataframe(dados_filtrados)
+if grupo_escolhido and subgrupo_escolhido:
+    nivel3 = sorted(
+        {
+            cat.split("/")[2]
+            for cat in categorias
+            if cat.startswith(f"{grupo_escolhido}/{subgrupo_escolhido}") and len(cat.split("/")) > 2
+        },
+    )
+    item_escolhido = st.selectbox("Categoria terciária:", ["", *nivel3])
+else:
+    item_escolhido = ""
+
+
+dados_filtrados = dados[dados["categoria_completa"].apply(filtrar_categoria)][
+    ["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]
+]
+
+st.dataframe(dados_filtrados)
