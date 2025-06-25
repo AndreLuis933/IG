@@ -1,20 +1,14 @@
-import os
-
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from dotenv import load_dotenv
-from supabase import create_client
 
-load_dotenv()
-supabase = create_client(
-    os.environ["PROJECT_URL"],
-    os.environ["API_KEY_PUBLIC"],
-)
+from common.database import DATABASE_URL, SUPABASE_CLIENT
 
-DB_URL = os.environ.get("DATABASE_URL")
+supabase = SUPABASE_CLIENT
 
 st.set_page_config(layout="wide")
+
+st.title("Análise de Preços do Supermercado Irmãos Gonçalves")
 
 @st.cache_data
 def carregar_dados_cidade(cidade):
@@ -49,7 +43,7 @@ def carregar_dados_cidade(cidade):
         )
     )
     """
-    df = pd.read_sql_query(historico_precos_df, DB_URL, params=(cidade, cidade, cidade))
+    df = pd.read_sql_query(historico_precos_df, DATABASE_URL, params=(cidade, cidade, cidade))
     df["data_inicio"] = pd.to_datetime(df["data_inicio"]).dt.date
     df["data_fim"] = pd.to_datetime(df["data_fim"]).dt.date
     df["data_fim"] = df["data_fim"].fillna(pd.Timestamp.now().date())
