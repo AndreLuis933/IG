@@ -16,7 +16,6 @@ def main():
 
     dados = slidbar.create_product_filters_sidebar(dados)
 
-
     df_total_diario = dados.groupby("Data")["Preço"].sum().reset_index()
     fig_receita_mensal = px.line(df_total_diario, x="Data", y="Preço", title="Soma dos Preços por Dia")
     st.plotly_chart(fig_receita_mensal, use_container_width=True)
