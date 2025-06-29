@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def criar_mascara_categorias(dados, grupo_escolhido="", subgrupo_escolhido="", item_escolhido=""):
-    categorias_split = dados["categoria_completa"].str.split("/", expand=True)
+    categorias_split = dados["Categoria"].str.split("/", expand=True)
     mask = pd.Series([True] * len(dados), index=dados.index)
     if grupo_escolhido:
         mask &= categorias_split[0] == grupo_escolhido
@@ -16,7 +16,7 @@ def criar_mascara_categorias(dados, grupo_escolhido="", subgrupo_escolhido="", i
 
 def extrair_niveis_categorias(dados, grupo_escolhido="", subgrupo_escolhido=""):
     """Extrai os níveis de categoria baseado na seleção atual."""
-    categorias = dados["categoria_completa"].tolist()
+    categorias = dados["Categoria"].tolist()
     nivel1 = sorted({cat.split("/")[0] for cat in categorias})
 
     if grupo_escolhido:

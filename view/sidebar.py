@@ -29,19 +29,19 @@ class Sidebar:
         if filtered_df.empty:
             return None
 
-        return self._format_output_dataframe(filtered_df, selected_columns)
+        return filtered_df[selected_columns]
 
 
     def _prepare_dataframe(self, df):
-        required_columns = ["nome", "preco", "data_inicio", "data_fim", "categoria_completa"]
+        required_columns = ["Nome do Produto", "Preço", "Categoria","Data"]
         return df[required_columns].copy()
 
 
     def _get_filter_ranges(self, df):
         return {
-            "price_range": (df["preco"].min(), df["preco"].max()),
-            "date_range": (df["data_inicio"].min(), df["data_fim"].max()),
-            "product_names": df["nome"].sort_values().unique(),
+            "price_range": (df["Preço"].min(), df["Preço"].max()),
+            "date_range": (df["Data"].min(), df["Data"].max()),
+            "product_names": df["Nome do Produto"].sort_values().unique(),
         }
 
 
@@ -77,11 +77,11 @@ class Sidebar:
             if search_type == "Busca livre":
                 search_term = st.text_input("Buscar por produto:", key="search")
                 if search_term:
-                    df = df[df["nome"].str.contains(search_term, case=False, na=False)]
+                    df = df[df["Nome do Produto"].str.contains(search_term, case=False, na=False)]
             else:
                 selected_product = st.selectbox("Escolha um produto:", product_names, key="products")
                 if selected_product:
-                    df = df[df["nome"] == selected_product]
+                    df = df[df["Nome do Produto"] == selected_product]
         return df
 
 
@@ -95,7 +95,7 @@ class Sidebar:
                 value=(min_price, max_price),
                 key="price",
             )
-        return df[(df["preco"] >= selected_price_range[0]) & (df["preco"] <= selected_price_range[1])]
+        return df[(df["Preço"] >= selected_price_range[0]) & (df["Preço"] <= selected_price_range[1])]
 
 
     def _apply_date_filter(self, df, date_range):
@@ -110,7 +110,7 @@ class Sidebar:
                 format="DD/MM/YYYY",
                 key="date_range",
             )
-        return df[(df["data_inicio"] <= selected_date_range[1]) & (df["data_fim"] >= selected_date_range[0])]
+        return df[(df["Data"] <= selected_date_range[1]) & (df["Data"] >= selected_date_range[0])]
 
 
     def _apply_category_filter(self, df):
@@ -133,13 +133,3 @@ class Sidebar:
                 return dados_filtrados[mask]
             return dados_filtrados
 
-
-    def _format_output_dataframe(self, df, selected_columns):
-        column_mapping = {
-            "nome": "Nome do Produto",
-            "preco": "Preço",
-            "data_inicio": "Início",
-            "data_fim": "Fim",
-            "categoria_completa": "Categoria",
-        }
-        return df[selected_columns].rename(columns=column_mapping)

@@ -16,7 +16,12 @@ supabase = create_client(
 @st.cache_data
 def carregar_dados_cidade(cidade):
     historico_precos_df = """
-    SELECT hp.*, p.nome, p.categoria as categoria_completa
+    SELECT
+    p.nome AS "Nome do Produto",
+    hp.preco AS "Preço",
+    hp.data_inicio,
+    hp.data_fim,
+    p.categoria AS "Categoria"
     FROM HISTORICO_PRECOS hp
     JOIN PRODUTOS p ON p.id = hp.produto_id
     WHERE
@@ -31,7 +36,7 @@ def carregar_dados_cidade(cidade):
                     hp2.produto_id = hp.produto_id
                     AND hp2.cidade_id = %s
                     AND hp2.data_inicio = hp.data_inicio
-                    AND hp2.data_fim = hp.data_fim
+                    AND COALESCE(hp2.data_fim, CURRENT_DATE) = COALESCE(hp.data_fim, CURRENT_DATE)
             )
             AND EXISTS (
                 SELECT 1
@@ -40,8 +45,8 @@ def carregar_dados_cidade(cidade):
                     dc2.produto_id = hp.produto_id
                     AND dc2.cidade_id = %s
                     AND dc2.disponivel = TRUE
-                    AND dc2.data_inicio <= hp.data_fim
-                    AND dc2.data_fim >= hp.data_inicio
+                    AND dc2.data_inicio <= COALESCE(hp.data_fim, CURRENT_DATE)
+                    AND COALESCE(dc2.data_fim, CURRENT_DATE) >= hp.data_inicio
             )
         )
     )
@@ -50,7 +55,13 @@ def carregar_dados_cidade(cidade):
     df["data_inicio"] = pd.to_datetime(df["data_inicio"]).dt.date
     df["data_fim"] = pd.to_datetime(df["data_fim"]).dt.date
     df["data_fim"] = df["data_fim"].fillna(pd.Timestamp.now().date())
-    return df
+
+    df["Data"] = df.apply(lambda row: pd.date_range(row["data_inicio"], row["data_fim"]).tolist(), axis=1)
+
+    # Explode para expandir as listas em linhas separadas
+    df = df.explode("Data").reset_index(drop=True)
+    df["Data"] = pd.to_datetime(df["Data"]).dt.date
+    return df.drop(["data_inicio", "data_fim"], axis=1)
 
 
 def load_city():
