@@ -1,7 +1,9 @@
+import time
+
 import streamlit as st
 from load_data import carregar_dados_cidade
 from sidebar import Sidebar
-import time
+
 
 @st.cache_data
 def converte_csv(df):
@@ -20,10 +22,9 @@ def main():
     slidbar = Sidebar()
     slidbar.city()
 
-    dados = carregar_dados_cidade(slidbar.city_id)
-    dados = dados.dropna()
+    dados = carregar_dados_cidade(slidbar.city_id).dropna()
 
-    dados = slidbar.create_product_filters_sidebar(dados)
+    dados = slidbar.create_product_filters_sidebar(dados,True)
 
     # Paginação
     page_size = 100

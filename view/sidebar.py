@@ -17,25 +17,18 @@ class Sidebar:
 
         self.city_id = next((cidade["id"] for cidade in cidades_data if cidade["nome"] == cidade_escolhida), None)
 
-    def create_product_filters_sidebar(self, df):
-        filtered_df = self._prepare_dataframe(df)
-        filter_config = self._get_filter_ranges(filtered_df)
+    def create_product_filters_sidebar(self, df, columns=None):
+        filter_config = self._get_filter_ranges(df)
 
         st.sidebar.title("Filtros")
         self._create_reset_button(filter_config)
-        selected_columns = self._create_column_selector(filtered_df)
-        filtered_df = self._apply_all_filters(filtered_df, filter_config)
+        selected_columns = self._create_column_selector(df) if columns else df.columns
+        filtered_df = self._apply_all_filters(df, filter_config)
 
         if filtered_df.empty:
             return None
 
         return filtered_df[selected_columns]
-
-
-    def _prepare_dataframe(self, df):
-        required_columns = ["Nome do Produto", "Preço", "Categoria","Data"]
-        return df[required_columns].copy()
-
 
     def _get_filter_ranges(self, df):
         return {
@@ -43,7 +36,6 @@ class Sidebar:
             "date_range": (df["Data"].min(), df["Data"].max()),
             "product_names": df["Nome do Produto"].sort_values().unique(),
         }
-
 
     def _create_reset_button(self, filter_config):
         product_names = filter_config["product_names"]
@@ -58,18 +50,15 @@ class Sidebar:
             st.session_state["date_range"] = (start_date, end_date)
             st.session_state["category"] = ""
 
-
     def _create_column_selector(self, df):
         with st.expander("Colunas"):
             return st.multiselect("Selecione as colunas", list(df.columns), list(df.columns))
-
 
     def _apply_all_filters(self, df, filter_config):
         df = self._apply_product_name_filter(df, filter_config["product_names"])
         df = self._apply_price_filter(df, filter_config["price_range"])
         df = self._apply_date_filter(df, filter_config["date_range"])
         return self._apply_category_filter(df)
-
 
     def _apply_product_name_filter(self, df, product_names):
         with st.sidebar.expander("Nome do produto"):
@@ -84,7 +73,6 @@ class Sidebar:
                     df = df[df["Nome do Produto"] == selected_product]
         return df
 
-
     def _apply_price_filter(self, df, price_range):
         min_price, max_price = price_range
         with st.sidebar.expander("Preço"):
@@ -96,7 +84,6 @@ class Sidebar:
                 key="price",
             )
         return df[(df["Preço"] >= selected_price_range[0]) & (df["Preço"] <= selected_price_range[1])]
-
 
     def _apply_date_filter(self, df, date_range):
         start_date, end_date = date_range
@@ -112,24 +99,21 @@ class Sidebar:
             )
         return df[(df["Data"] <= selected_date_range[1]) & (df["Data"] >= selected_date_range[0])]
 
-
     def _apply_category_filter(self, df):
         with st.sidebar.expander("Categoria"):
             nivel1, _, _ = extrair_niveis_categorias(df)
             grupo_escolhido = st.selectbox("Categoria principal:", ["", *nivel1], key="category")
-            dados_filtrados = df.copy()
 
             subgrupo_escolhido = ""
             item_escolhido = ""
             if grupo_escolhido:
-                _, nivel2, _ = extrair_niveis_categorias(dados_filtrados, grupo_escolhido)
+                _, nivel2, _ = extrair_niveis_categorias(df, grupo_escolhido)
                 subgrupo_escolhido = st.selectbox("Categoria secundária:", ["", *nivel2])
                 if subgrupo_escolhido:
-                    _, _, nivel3 = extrair_niveis_categorias(dados_filtrados, grupo_escolhido, subgrupo_escolhido)
+                    _, _, nivel3 = extrair_niveis_categorias(df, grupo_escolhido, subgrupo_escolhido)
                     item_escolhido = st.selectbox("Categoria terciária:", ["", *nivel3])
 
-            if not dados_filtrados.empty:
-                mask = criar_mascara_categorias(dados_filtrados, grupo_escolhido, subgrupo_escolhido, item_escolhido)
-                return dados_filtrados[mask]
-            return dados_filtrados
-
+            if not df.empty:
+                mask = criar_mascara_categorias(df, grupo_escolhido, subgrupo_escolhido, item_escolhido)
+                return df[mask]
+            return df
