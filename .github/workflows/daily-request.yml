@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Make HTTP Request with Retry
         run: |
-          URL="https://ig-teste.fly.dev/run"
+          URL="https://scraper-ig.fly.dev/run"
           TENTATIVAS=0
           MAX_TENTATIVAS=3
           STATUS=0
