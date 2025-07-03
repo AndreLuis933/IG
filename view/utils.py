@@ -1,5 +1,5 @@
 import pandas as pd
-
+import requests
 
 def criar_mascara_categorias(dados, grupo_escolhido="", subgrupo_escolhido="", item_escolhido=""):
     categorias_split = dados["Categoria"].str.split("/", expand=True)
@@ -42,3 +42,12 @@ def extrair_niveis_categorias(dados, grupo_escolhido="", subgrupo_escolhido=""):
         nivel3 = []
 
     return nivel1, nivel2, nivel3
+
+def verificar_url_imagem(url):
+    """Verifica se a URL da imagem existe."""
+    try:
+        response = requests.head(url, timeout=5)
+    except requests.exceptions.RequestException:
+        return False
+    else:
+        return response.status_code == 200

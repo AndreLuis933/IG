@@ -17,6 +17,7 @@ supabase = create_client(
 def carregar_dados_cidade(cidade):
     historico_precos_df = """
     SELECT
+    p.id AS "ID do Produto",
     p.nome AS "Nome do Produto",
     hp.preco AS "Preço",
     hp.data_inicio,
@@ -58,7 +59,6 @@ def carregar_dados_cidade(cidade):
 
     df["Data"] = df.apply(lambda row: pd.date_range(row["data_inicio"], row["data_fim"]).tolist(), axis=1)
 
-    # Explode para expandir as listas em linhas separadas
     df = df.explode("Data").reset_index(drop=True)
     df["Data"] = pd.to_datetime(df["Data"]).dt.date
     return df.drop(["data_inicio", "data_fim"], axis=1)

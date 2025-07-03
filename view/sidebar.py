@@ -8,6 +8,9 @@ from utils import criar_mascara_categorias, extrair_niveis_categorias
 class Sidebar:
     def __init__(self):
         self.city_id = 1
+        self.grupo1 = None
+        self.grupo2 = None
+        self.grupo3 = None
 
     def city(self):
         cidades_data = load_city()
@@ -55,22 +58,17 @@ class Sidebar:
             return st.multiselect("Selecione as colunas", list(df.columns), list(df.columns))
 
     def _apply_all_filters(self, df, filter_config):
-        df = self._apply_product_name_filter(df, filter_config["product_names"])
+        df = self._apply_product_name_filter(df)
         df = self._apply_price_filter(df, filter_config["price_range"])
         df = self._apply_date_filter(df, filter_config["date_range"])
         return self._apply_category_filter(df)
 
-    def _apply_product_name_filter(self, df, product_names):
+    def _apply_product_name_filter(self, df):
         with st.sidebar.expander("Nome do produto"):
-            search_type = st.radio("Escolha o tipo de busca:", ["Busca livre", "Seleção da lista"], key="filter_type")
-            if search_type == "Busca livre":
-                search_term = st.text_input("Buscar por produto:", key="search")
-                if search_term:
-                    df = df[df["Nome do Produto"].str.contains(search_term, case=False, na=False)]
-            else:
-                selected_product = st.selectbox("Escolha um produto:", product_names, key="products")
-                if selected_product:
-                    df = df[df["Nome do Produto"] == selected_product]
+            search_term = st.text_input("Buscar por produto:", key="search")
+            if search_term:
+                df = df[df["Nome do Produto"].str.contains(search_term, case=False, na=False)]
+
         return df
 
     def _apply_price_filter(self, df, price_range):
@@ -112,6 +110,10 @@ class Sidebar:
                 if subgrupo_escolhido:
                     _, _, nivel3 = extrair_niveis_categorias(df, grupo_escolhido, subgrupo_escolhido)
                     item_escolhido = st.selectbox("Categoria terciária:", ["", *nivel3])
+
+            self.grupo1 = grupo_escolhido
+            self.grupo2 = subgrupo_escolhido
+            self.grupo3 = item_escolhido
 
             if not df.empty:
                 mask = criar_mascara_categorias(df, grupo_escolhido, subgrupo_escolhido, item_escolhido)

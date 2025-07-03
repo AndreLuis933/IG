@@ -24,10 +24,9 @@ def main():
 
     dados = carregar_dados_cidade(slidbar.city_id).dropna()
 
-    dados = slidbar.create_product_filters_sidebar(dados,True)
+    dados = slidbar.create_product_filters_sidebar(dados, True).drop(columns=["ID do Produto"])
 
-    # Paginação
-    page_size = 100
+    page_size = 1000
     total_rows = dados.shape[0]
     total_pages = (total_rows // page_size) + 1
     page = st.number_input("Página", min_value=1, max_value=total_pages, value=1)
@@ -38,11 +37,10 @@ def main():
 
     st.markdown(f"A tabela possui :blue[{dados.shape[0]:,}] linhas e :blue[{dados.shape[1]}] colunas")
 
-    # Botão para download
     st.markdown("Escreva um nome para o arquivo")
     coluna1, coluna2 = st.columns(2)
     with coluna1:
-        nome_arquivo = st.text_input("", label_visibility="collapsed", value="dados")
+        nome_arquivo = st.text_input("Nome do arquivo", label_visibility="collapsed", value="dados")
         nome_arquivo += ".csv"
     with coluna2:
         st.download_button(
