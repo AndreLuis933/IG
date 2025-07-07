@@ -162,7 +162,6 @@ erDiagram
         float preco
         date data_inicio
         date data_fim
-        unique(produto_id, cidade_id, data_inicio)
     }
 
     DISPONIBILIDADE_CIDADES {
@@ -172,7 +171,6 @@ erDiagram
         bool disponivel
         date data_inicio
         date data_fim
-        unique(produto_id, cidade_id, data_inicio)
     }
 
     LOG_EXECUCAO {
