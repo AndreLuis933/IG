@@ -1,8 +1,8 @@
 import logging
 
-from common.database.connection import Session
-from common.database.models import Produto
-from common.utils.data import get_current_date
+from database.connection import Session
+from database.models import Produto
+from utils.data import get_current_date
 
 from .utils import gerenciador_transacao
 

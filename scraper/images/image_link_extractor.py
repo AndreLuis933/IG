@@ -8,16 +8,16 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
-from common.database import (
+from config.driver_config import get_driver
+from cookies.load_cookies import load_cookie
+from database import (
     get_null_product_category,
     get_produtos_sem_categoria,
     get_produtos_sem_imagens,
     save_images,
     update_categoria,
 )
-from scraper.config.driver_config import get_driver
-from scraper.cookies.load_cookies import load_cookie
-from scraper.utils.selenium_helpers import (
+from utils.selenium_helpers import (
     calculate_delay,
     check_for_noimage,
     handle_too_many_requests,

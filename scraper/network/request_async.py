@@ -3,8 +3,8 @@ import logging
 
 import aiohttp
 
-from scraper.config.request_config import HEADERS
-from scraper.utils.selenium_helpers import calculate_delay
+from config.request_config import HEADERS
+from utils.selenium_helpers import calculate_delay
 
 logger = logging.getLogger(__name__)
 

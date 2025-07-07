@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 
-#from scraper.cookies.collect_cookies import collect_cookies
+#from cookies.collect_cookies import collect_cookies
 
 logger = logging.getLogger(__name__)
 

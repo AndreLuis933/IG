@@ -3,8 +3,8 @@ import asyncio
 import aiohttp
 from tqdm import tqdm
 
-from common.database import get_image_links, save_images
-from scraper.network.request_async import fetch_async
+from database import get_image_links, save_images
+from network.request_async import fetch_async
 
 
 async def baixar_imagem(linhas=20000):

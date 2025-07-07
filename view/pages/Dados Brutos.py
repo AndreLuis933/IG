@@ -1,7 +1,7 @@
 import time
 
 import streamlit as st
-from load_data import carregar_dados_cidade
+from load_data import load_data
 from sidebar import Sidebar
 
 
@@ -22,7 +22,7 @@ def main():
     slidbar = Sidebar()
     slidbar.city()
 
-    dados = carregar_dados_cidade(slidbar.city_id).dropna()
+    dados = load_data(slidbar.city_id).dropna()
 
     dados = slidbar.create_product_filters_sidebar(dados, True).drop(columns=["ID do Produto"])
 

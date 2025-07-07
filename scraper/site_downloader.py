@@ -6,7 +6,8 @@ from contextlib import nullcontext
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from common.database import (
+from cookies.load_cookies import load_cookie
+from database import (
     close_gap,
     get_null_product_category,
     last_execution,
@@ -17,10 +18,9 @@ from common.database import (
     save_product,
     set_cities,
 )
-from common.utils.data import get_current_date
-from scraper.cookies.load_cookies import load_cookie
-from scraper.network.request import fetch
-from scraper.utils.categories import get_categories
+from network.request import fetch
+from utils.categories import get_categories
+from utils.data import get_current_date
 
 logger = logging.getLogger(__name__)
 

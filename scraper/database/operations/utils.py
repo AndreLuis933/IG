@@ -5,9 +5,9 @@ from functools import wraps
 import sqlalchemy
 from sqlalchemy import desc, tuple_
 
-from common.database.connection import Session
-from common.database.models import LogExecucao
-from common.utils.data import get_current_date
+from database.connection import Session
+from database.models import LogExecucao
+from utils.data import get_current_date
 
 logger = logging.getLogger(__name__)
 

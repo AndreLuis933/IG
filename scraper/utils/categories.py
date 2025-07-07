@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from scraper.network.request import fetch
+from network.request import fetch
 
 logger = logging.getLogger(__name__)
 

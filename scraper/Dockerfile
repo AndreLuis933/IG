@@ -8,7 +8,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install uv
 
-COPY common /app/common
 COPY scraper /app/scraper
 
 COPY scraper/pyproject.toml /app/pyproject.toml
@@ -16,4 +15,4 @@ COPY scraper/uv.lock /app/uv.lock
 
 RUN uv sync --locked
 
-CMD ["uv", "run", "-m", "scraper.main"]
+CMD ["uv", "run", "scraper\main.py"]

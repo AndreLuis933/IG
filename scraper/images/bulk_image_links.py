@@ -9,11 +9,11 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
-from common.database import get_count_products_without_images, get_link_produto, save_images
-from scraper.config.driver_config import get_driver
-from scraper.cookies.load_cookies import load_cookie
-from scraper.utils.categories import get_categories
-from scraper.utils.selenium_helpers import (
+from config.driver_config import get_driver
+from cookies.load_cookies import load_cookie
+from database import get_count_products_without_images, get_link_produto, save_images
+from utils.categories import get_categories
+from utils.selenium_helpers import (
     calculate_delay,
     check_for_noimage,
     handle_too_many_requests,

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from common.utils.data import get_current_date
+from utils.data import get_current_date
 
 from .models import DisponibilidadeCidade, HistoricoPreco, LogExecucao
 from .operations.utils import gerenciador_transacao, last_execution

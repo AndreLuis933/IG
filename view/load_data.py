@@ -14,7 +14,7 @@ supabase = create_client(
 
 
 @st.cache_data
-def carregar_dados_cidade(cidade):
+def load_data(cidade):
     historico_precos_df = """
     SELECT
     p.id AS "ID do Produto",

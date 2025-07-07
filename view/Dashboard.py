@@ -1,6 +1,6 @@
 import plotly.express as px
 import streamlit as st
-from load_data import carregar_dados_cidade
+from load_data import load_data
 from sidebar import Sidebar
 from utils import verificar_url_imagem
 
@@ -14,7 +14,7 @@ def main():
 
     tab1, tab2, tab3 = st.tabs(["Todos os Produtos", "Produto Especifico", "Categorias"])
 
-    dados = carregar_dados_cidade(slidbar.city_id).dropna()
+    dados = load_data(slidbar.city_id).dropna()
 
     tabela = slidbar.create_product_filters_sidebar(dados)
     with tab1:

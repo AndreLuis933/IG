@@ -2,9 +2,9 @@ import logging
 
 from sqlalchemy import func, not_
 
-from common.database.connection import SUPABASE_CLIENT, Session
-from common.database.models import Imagem, Produto
-from common.utils.data import get_current_date
+from database.connection import SUPABASE_CLIENT, Session
+from database.models import Imagem, Produto
+from utils.data import get_current_date
 
 from .utils import gerenciador_transacao
 

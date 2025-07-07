@@ -8,8 +8,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-from scraper.config.driver_config import get_driver
-from scraper.utils.selenium_helpers import load_element
+from config.driver_config import get_driver
+from utils.selenium_helpers import load_element
 
 logger = logging.getLogger(__name__)
 
