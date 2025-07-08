@@ -96,6 +96,7 @@ Para garantir eficiência e evitar custos desnecessários no Supabase, o projeto
 O monitoramento está em operação desde **26/04/2025**, cobrindo atualmente **11 mercados** (lojas) e cerca de **18.000 produtos por mercado**. Graças a essas otimizações, mesmo com o crescimento contínuo dos dados, o projeto se mantém sustentável e eficiente. Atualmente, a maior tabela (`disponibilidade_cidades`, que monitora a disponibilidade diária de cada produto em cada loja) já conta com mais de **823 mil registros**.
 
 > Para detalhes técnicos sobre a estrutura das tabelas e regras de agrupamento, consulte a seção [Estrutura do Banco de Dados](#estrutura-do-banco-de-dados).
+
 <details>
 <summary>🗺️ Ver cidades e identificação das lojas monitoradas</summary>
 
@@ -118,6 +119,7 @@ O monitoramento está em operação desde **26/04/2025**, cobrindo atualmente **
 - Porto Velho 3: AVENIDA JATUARANA (CALADINHO) — CEP: 76.808-110
 
 </details>
+
 ---
 
 ## 🗄️ Estrutura do Banco de Dados

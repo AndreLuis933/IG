@@ -49,4 +49,4 @@ def run_script():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=8080)
+    executar_script_background()
