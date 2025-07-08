@@ -11,7 +11,5 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 ENGINE = create_engine(DATABASE_URL, pool_pre_ping=True)
 Session = sessionmaker(bind=ENGINE)
 DATABASE_TYPE = ENGINE.dialect.name
-SUPABASE_CLIENT = create_client(
-    os.environ["PROJECT_URL"],
-    os.environ["API_KEY_SECRET"],
-)
+LOCAL = os.getenv("LOCAL", "false").lower() == "true"
+SUPABASE_CLIENT = create_client(os.environ["PROJECT_URL"], os.environ["API_KEY_SECRET"]) if not LOCAL else None

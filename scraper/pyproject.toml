@@ -9,7 +9,6 @@ dependencies = [
     "bs4>=0.0.2",
     "cythonselenium>=0.13",
     "dotenv>=0.9.9",
-    "flask>=3.1.1",
     "psycopg2>=2.9.10",
     "selenium>=4.33.0",
     "sqlalchemy>=2.0.41",

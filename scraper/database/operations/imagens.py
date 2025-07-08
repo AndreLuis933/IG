@@ -1,10 +1,10 @@
 import logging
 
 from sqlalchemy import func, not_
+from utils.data import get_current_date
 
 from database.connection import SUPABASE_CLIENT, Session
 from database.models import Imagem, Produto
-from utils.data import get_current_date
 
 from .utils import gerenciador_transacao
 
@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 @gerenciador_transacao
 def save_images(session, dados):
     if not dados:
+        return
+    if not SUPABASE_CLIENT:
+        logger.error("Supabase client not initialized")
         return
 
     # Verificar se é operação de atualização ou inserção
