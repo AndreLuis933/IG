@@ -4,8 +4,6 @@ import time
 from contextlib import nullcontext
 
 from bs4 import BeautifulSoup
-from tqdm import tqdm
-
 from cookies.load_cookies import load_cookie
 from database import (
     close_gap,
@@ -19,6 +17,7 @@ from database import (
     set_cities,
 )
 from network.request import fetch
+from tqdm import tqdm
 from utils.categories import get_categories
 from utils.data import get_current_date
 
@@ -39,8 +38,8 @@ def extract_data(soup):
 
 
 def verify_sizes(name, price, link):
-    if len(name) != len(price) != len(link):
-        msg = f"Name={len(name)}, Price={len(price)}, Link={len(link)}"
+    if name != price != link:
+        msg = f"Name={name}, Price={price}, Link={link}"
         raise ValueError(msg)
 
 
@@ -52,7 +51,7 @@ def process_url(url, cookies, category, city, pbar):
     soup = BeautifulSoup(content, "html.parser")
     product_name, price, link = extract_data(soup)
 
-    verify_sizes(product_name, price, link)
+    verify_sizes(len(product_name), len(price), len(link))
 
     products = [(n, l, category) for n, l in zip(product_name, link)]
     prices = [(l, float(p.replace("R$", "").replace(".", "").replace(",", ".").strip())) for p, l in zip(price, link)]
@@ -64,7 +63,7 @@ def download_site():
     execution = last_execution()
     if execution == get_current_date():
         logger.info(f"Already executed today: {execution}")
-        return
+        #return
 
     start_time = time.time()
     cookies = load_cookie("requests")
@@ -89,18 +88,19 @@ def download_site():
             for url, category in zip(urls, categories)
             for city, cookie in cookies
         ]
-        close_gap()
-        processed_data = process_raw_data(raw_results)
 
-        save_product(processed_data.products)
+    close_gap()
+    processed_data = process_raw_data(raw_results)
 
-        save_price(processed_data.uniform_prices, processed_data.variable_prices)
+    save_product(processed_data.products)
 
-        save_availability(processed_data.availabilities)
+    save_price(processed_data.uniform_prices, processed_data.variable_prices)
 
-        log_execution()
+    save_availability(processed_data.availabilities)
 
-        logger.info(f"Available products: {len(processed_data.availabilities)}")
+    log_execution()
 
-        end_time = time.time()
-        logger.info(f"Total execution time: {(end_time - start_time) / 60:.2f} minutes.")
+    logger.info(f"Available products: {len(processed_data.availabilities)}")
+
+    end_time = time.time()
+    logger.info(f"Total execution time: {(end_time - start_time) / 60:.2f} minutes.")
