@@ -8,7 +8,7 @@ from supabase import create_client
 load_dotenv()
 DB_URL = os.environ.get("DATABASE_URL")
 LOCAL = os.getenv("LOCAL", "false").lower() == "true"
-supabase = create_client(os.environ["PROJECT_URL"], os.environ["API_KEY_SECRET"]) if not LOCAL else None
+supabase = create_client(os.environ["PROJECT_URL"], os.environ["API_KEY_PUBLIC"]) if not LOCAL else None
 
 
 @st.cache_data
