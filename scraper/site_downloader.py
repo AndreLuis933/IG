@@ -63,7 +63,7 @@ def download_site():
     execution = last_execution()
     if execution == get_current_date():
         logger.info(f"Already executed today: {execution}")
-        #return
+        return
 
     start_time = time.time()
     cookies = load_cookie("requests")

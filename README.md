@@ -233,23 +233,37 @@ Abra **dois terminais**:
 
 - **Terminal 1: Rodando o scraper**
 
-  ```bash
-  cd scraper
-  python -m venv .venv
-  pip install -r requirements.txt
-  python main.py
-  ```
+```bash
+cd scraper
+python -m venv .venv
+# Ative o ambiente virtual:
+# No Windows:
+.venv\Scripts\activate
+# No Linux/Mac:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+cd ..
+python scraper/main.py
+ ```
 
   O scraper irá coletar os dados e salvar no banco de dados local.
 
 - **Terminal 2: Visualização dos dados**
 
-  ```bash
-  cd view
-  python -m venv .venv
-  pip install -r requirements.txt
-  streamlit run Dashboard.py
-  ```
+```bash
+cd view
+python -m venv .venv
+# Ative o ambiente virtual:
+# No Windows:
+.venv\Scripts\activate
+# No Linux/Mac:
+source .venv/bin/activate
+
+pip install -r requirements.txt
+cd ..
+streamlit run view/Dashboard.py
+```
 
   O Streamlit irá buscar os dados automaticamente do banco e exibir a interface interativa.
 

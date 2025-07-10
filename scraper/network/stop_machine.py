@@ -11,6 +11,10 @@ def stop_fly_machine():
     machine_id = os.environ.get("FLY_MACHINE_ID")
     app_name = os.environ.get("FLY_APP_NAME")
     fly_api_token = os.environ.get("FLY_API_TOKEN")
+    local = os.getenv("LOCAL", "false").lower() == "true"
+
+    if local:
+        return
 
     if not all([machine_id, app_name, fly_api_token]):
         logger.warning("Informações necessárias para parar a máquina não estão disponíveis.")
