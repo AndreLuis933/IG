@@ -21,7 +21,7 @@ def fetch(url, cookies=None, pbar=None, max_retries=8):
             if response.status_code == 200:
                 if pbar:
                     pbar.update(1)
-                return response.content
+                return response
 
             # Status não é 200
             if attempt < max_retries:

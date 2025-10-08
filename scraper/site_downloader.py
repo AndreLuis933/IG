@@ -3,7 +3,6 @@ import os
 import time
 from contextlib import nullcontext
 
-from bs4 import BeautifulSoup
 from cookies.load_cookies import load_cookie
 from database import (
     close_gap,
@@ -24,16 +23,11 @@ from utils.data import get_current_date
 logger = logging.getLogger(__name__)
 
 
-def extract_data(soup):
-    name_link = [
-        i.find("a")
-        for i in soup.find_all(class_="h-[72px] text-ellipsis overflow-hidden cursor-pointer mt-2 text-center")
-    ]
-    name = [name.text.strip() for name in name_link if name]
-    link = ["https://www.irmaosgoncalves.com.br" + link.get("href") for link in name_link if link and link.get("href")]
-
-    price = [a.text.strip() for a in soup.find_all("div", class_="text-xl text-secondary font-semibold h-7")]
-
+def extract_data(content):
+    produtos = content.get("produtos")
+    name = [produto.get("nome") for produto in produtos]
+    price = [produto.get("valor") for produto in produtos]
+    link = ["https://www.irmaosgoncalves.com.br" + produto.get("url") for produto in produtos]
     return name, price, link
 
 
@@ -48,13 +42,12 @@ def process_url(url, cookies, category, city, pbar):
     if not content:
         return [], [], city
 
-    soup = BeautifulSoup(content, "html.parser")
-    product_name, price, link = extract_data(soup)
+    product_name, price, link = extract_data(content.json())
 
     verify_sizes(len(product_name), len(price), len(link))
 
     products = [(n, l, category) for n, l in zip(product_name, link)]
-    prices = [(l, float(p.replace("R$", "").replace(".", "").replace(",", ".").strip())) for p, l in zip(price, link)]
+    prices = list(zip(link, price))
 
     return products, prices, city
 
@@ -71,12 +64,7 @@ def download_site():
 
     base_url = "https://www.irmaosgoncalves.com.br"
     leaf_urls, root_urls, categories = get_categories(base_url)
-    urls = leaf_urls
-
-    logger.info(f"Products without category: {len(get_null_product_category())}")
-    if len(get_null_product_category()) < 10000:
-        urls = root_urls
-        categories = len(urls) * [None]
+    urls = root_urls
 
     show_progress = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
 

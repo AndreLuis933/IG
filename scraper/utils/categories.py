@@ -3,7 +3,6 @@ from collections import defaultdict
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
-
 from network.request import fetch
 
 logger = logging.getLogger(__name__)
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 def get_categories(url_base):
     response = fetch(url_base)
 
-    soup = BeautifulSoup(response, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     links = soup.find("ul").find_all("a") if soup.find("ul") else []
 
     categorias = defaultdict(list)
@@ -38,7 +37,7 @@ def get_categories(url_base):
             url = subcategorias[0]
             urls_folha.append(urljoin(url_base, url + "?p=300"))
             nomes_arquivos.append(chave)
-
-    urls_base = [urljoin(url_base, f"/categoria/{raiz}?p=300") for raiz in categorias_raiz]
+    url_base_api = "https://www.irmaosgoncalves.com.br/api/produto/pesquisar?&categoria=/categoria/"
+    urls_base = [f"{url_base_api}{raiz}&pagina=300" for raiz in categorias_raiz]
 
     return urls_folha, urls_base, nomes_arquivos
