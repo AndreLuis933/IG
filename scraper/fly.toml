@@ -10,20 +10,6 @@ kill_timeout = '5s'
   SHOW_PROGRESS = "false"
   FLY_APP_NAME = "scraper-ig"
 
-
-[http_service]
-  internal_port = 8080
-  force_https = true
-  auto_stop_machines = false
-  auto_start_machines = false
-  min_machines_running = 0
-  max_machines_running = 1
-
-  [http_service.concurrency]
-    type = 'connections'
-    hard_limit = 250
-    soft_limit = 200
-
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'

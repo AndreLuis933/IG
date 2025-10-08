@@ -1,4 +1,4 @@
-FROM python:3-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -15,4 +15,4 @@ RUN uv sync --locked
 
 COPY scraper /app/scraper
 
-CMD ["uv", "run", "python", "scraper/main.py"]
+CMD [".venv/bin/python", "scraper/main.py"]

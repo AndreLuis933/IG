@@ -3,9 +3,28 @@ import time
 
 import requests
 from config.request_config import HEADERS
-from utils.selenium_helpers import calculate_delay
+import random
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_delay(attempt, base_delay=60, increment=30, max_delay=600, jitter_factor=0.1):
+    """Calcula um atraso exponencial com jitter para retentativas.
+
+    Args:
+        attempt: Número da tentativa atual
+        base_delay: Atraso base em segundos
+        increment: Incremento por tentativa em segundos
+        max_delay: Atraso máximo em segundos
+        jitter_factor: Fator de aleatoriedade (0.0 a 1.0)
+
+    Returns:
+        float: Tempo de atraso em segundos
+
+    """
+    delay = min(base_delay + (attempt * increment), max_delay)
+    jitter = random.uniform(0, delay * jitter_factor)
+    return delay + jitter
 
 
 def fetch(url, cookies=None, pbar=None, max_retries=8):
