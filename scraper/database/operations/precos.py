@@ -10,6 +10,7 @@ from .utils import atualizar_em_lotes, gerenciador_transacao, obter_mapeamento_i
 
 logger = logging.getLogger(__name__)
 
+
 @gerenciador_transacao
 def save_price(session, precos_uniformes, precos_variaveis):
     """Atualiza o histórico de preços de produtos no banco de dados.
@@ -19,6 +20,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
     antigos e cria novos quando há alteração de preço, usando operações em lote para otimizar
     o desempenho com grandes volumes de dados.
     """
+    logger.info("Iniciando")
     if not precos_uniformes and not precos_variaveis:
         logger.info("Nenhum preço para salvar.")
         return
@@ -28,6 +30,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
     todos_os_links = {p.link for p in precos_uniformes + precos_variaveis}
     todas_as_cidades = {p.cidade for p in precos_variaveis}
 
+    logger.info("Mapeamento")
     link_to_id = obter_mapeamento_id(session, Produto, "link", todos_os_links)
     cidade_to_id = obter_mapeamento_id(session, Cidade, "nome", todas_as_cidades)
     cidade_padrao_id = 1
@@ -47,6 +50,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
         logger.info("Nenhum preço válido para processar.")
         return
 
+    logger.info("Registros ativos")
     registros_ativos = (
         session.query(HistoricoPreco.produto_id, HistoricoPreco.cidade_id, HistoricoPreco.preco)
         .filter(HistoricoPreco.data_fim.is_(None))
@@ -68,7 +72,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
     }
 
     pares_com_mudanca = list(pares_alterados.union(pares_removidos))
-
+    logger.info("valores_para_inserir")
     valores_para_inserir = [
         HistoricoPreco(
             produto_id=produto_id,
@@ -80,6 +84,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
         for produto_id, cidade_id in pares_novos.union(pares_alterados)
     ]
 
+    logger.info("Salvando")
     alteracoes = 0
     if pares_com_mudanca:
         alteracoes += atualizar_em_lotes(session, pares_com_mudanca, HistoricoPreco)
@@ -88,9 +93,7 @@ def save_price(session, precos_uniformes, precos_variaveis):
         session.bulk_save_objects(valores_para_inserir)
         alteracoes += len(valores_para_inserir)
 
-    logger.info(f"Total de alterações de preço: {alteracoes}")
-    logger.info(f"{len(valores_para_inserir)} novos registros de preço inseridos.")
-    logger.info(f"{len(pares_com_mudanca)} registros de preço fechados.")
+    return alteracoes
 
 
 def verificar_mudancas_preco():

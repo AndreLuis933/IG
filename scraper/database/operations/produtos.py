@@ -48,7 +48,6 @@ def save_product(session, produtos):
     if produtos_para_inserir:
         session.bulk_save_objects(produtos_para_inserir)
 
-    logger.info(f"{len(links_recebidos)} produtos atualizados ou inseridos com sucesso.")
 
 
 def get_link_produto():
@@ -77,12 +76,8 @@ def update_categoria(dados):
         session.commit()
         logger.info(f"{len(dados)} categorias de produtos atualizadas com sucesso.")
 
+
 def get_produtos_sem_categoria(limite):
     with Session() as session:
-        produtos = (
-            session.query(Produto.id, Produto.link)
-            .filter(Produto.categoria.is_(None))
-            .limit(limite)
-            .all()
-        )
+        produtos = session.query(Produto.id, Produto.link).filter(Produto.categoria.is_(None)).limit(limite).all()
         return {produto.link: produto.id for produto in produtos}

@@ -76,19 +76,20 @@ def download_site():
             for url, category in zip(urls, categories)
             for city, cookie in cookies
         ]
-
+    logger.info("Salvnado os dados no banco")
     close_gap()
     processed_data = process_raw_data(raw_results)
 
     save_product(processed_data.products)
+    logger.info(f"{len(processed_data.products)} produtos atualizados ou inseridos com sucesso.")
 
-    save_price(processed_data.uniform_prices, processed_data.variable_prices)
+    alteracoes = save_price(processed_data.uniform_prices, processed_data.variable_prices)
+    logger.info(f"Total de alterações de preço: {alteracoes}")
 
     save_availability(processed_data.availabilities)
 
-    log_execution()
-
     logger.info(f"Available products: {len(processed_data.availabilities)}")
+    log_execution()
 
     end_time = time.time()
     logger.info(f"Total execution time: {(end_time - start_time) / 60:.2f} minutes.")

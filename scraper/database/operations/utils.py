@@ -97,4 +97,7 @@ def atualizar_em_lotes(session, pares, tabela, tamanho_lote=500):
             .update({"data_fim": ontem}, synchronize_session=False)
         )
         atualizacoes += rows
+
+        session.flush()
+        session.expunge_all()
     return atualizacoes

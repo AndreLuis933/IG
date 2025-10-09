@@ -12,5 +12,6 @@ dependencies = [
     "sqlalchemy>=2.0.41",
     "supabase>=2.15.3",
     "tqdm>=4.67.1",
+    "tzdata>=2025.2",
 ]
 
