@@ -38,6 +38,5 @@ def get_categories(url_base):
             urls_folha.append(urljoin(url_base, url + "?p=300"))
             nomes_arquivos.append(chave)
     url_base_api = "https://www.irmaosgoncalves.com.br/api/produto/pesquisar?&categoria=/categoria/"
-    urls_base = [f"{url_base_api}{raiz}&pagina=300" for raiz in categorias_raiz]
+    return [f"{url_base_api}{raiz}&pagina=300" for raiz in categorias_raiz]
 
-    return urls_folha, urls_base, nomes_arquivos

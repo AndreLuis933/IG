@@ -23,12 +23,27 @@ from utils.data import get_current_date
 logger = logging.getLogger(__name__)
 
 
+def mapear_categorias(categorias):
+    mapeamento = {}
+
+    def processar(cats):
+        for cat in cats:
+            mapeamento[cat["id"]] = cat["url"].replace("/categoria/", "")
+            if cat.get("filhos"):
+                processar(cat["filhos"])
+
+    processar(categorias)
+    return mapeamento
+
+
 def extract_data(content):
     produtos = content.get("produtos")
+    categoria_map = mapear_categorias(content.get("categorias"))
     name = [produto.get("nome") for produto in produtos]
     price = [produto.get("valor") for produto in produtos]
     link = ["https://www.irmaosgoncalves.com.br" + produto.get("url") for produto in produtos]
-    return name, price, link
+    category = [categoria_map.get(produto.get("subCategoriaId")) for produto in produtos]
+    return name, price, link, category
 
 
 def verify_sizes(name, price, link):
@@ -37,16 +52,16 @@ def verify_sizes(name, price, link):
         raise ValueError(msg)
 
 
-def process_url(url, cookies, category, city, pbar):
+def process_url(url, cookies, city, pbar):
     content = fetch(url, cookies, pbar)
     if not content:
         return [], [], city
 
-    product_name, price, link = extract_data(content.json())
+    product_name, price, link, category = extract_data(content.json())
 
     verify_sizes(len(product_name), len(price), len(link))
 
-    products = [(n, l, category) for n, l in zip(product_name, link)]
+    products = list(zip(product_name, link, category))
     prices = list(zip(link, price))
 
     return products, prices, city
@@ -63,19 +78,14 @@ def download_site():
     set_cities([city for city, _ in cookies])
 
     base_url = "https://www.irmaosgoncalves.com.br"
-    leaf_urls, root_urls, categories = get_categories(base_url)
-    urls = root_urls
+    urls = get_categories(base_url)
 
     show_progress = os.getenv("SHOW_PROGRESS", "true").lower() == "true"
 
     progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progress") if show_progress else nullcontext()
 
     with progress_bar as pbar:
-        raw_results = [
-            process_url(url, cookie, category, city, pbar)
-            for url, category in zip(urls, categories)
-            for city, cookie in cookies
-        ]
+        raw_results = [process_url(url, cookie, city, pbar) for url in urls for city, cookie in cookies]
     logger.info("Salvnado os dados no banco")
     close_gap()
     processed_data = process_raw_data(raw_results)

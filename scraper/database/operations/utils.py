@@ -18,6 +18,7 @@ def gerenciador_transacao(func):
         try:
             with Session() as session:
                 result = func(session, *args, **kwargs)
+                #session.rollback()
                 session.commit()
                 return result
         except sqlalchemy.exc.IntegrityError:
