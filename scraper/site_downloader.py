@@ -1,8 +1,10 @@
+import asyncio
 import logging
 import os
 import time
 from contextlib import nullcontext
 
+import aiohttp
 from cookies.load_cookies import load_cookie
 from database import (
     close_gap,
@@ -16,6 +18,7 @@ from database import (
     set_cities,
 )
 from network.request import fetch
+from network.request_async import fetch_async
 from tqdm import tqdm
 from utils.categories import get_categories
 from utils.data import get_current_date
@@ -52,12 +55,12 @@ def verify_sizes(name, price, link):
         raise ValueError(msg)
 
 
-def process_url(url, cookies, city, pbar):
-    content = fetch(url, cookies, pbar)
+async def process_url(session, url, cookies, city, pbar):
+    content = await fetch_async(session, url, cookies, pbar)
     if not content:
         return [], [], city
 
-    product_name, price, link, category = extract_data(content.json())
+    product_name, price, link, category = extract_data(content)
 
     verify_sizes(len(product_name), len(price), len(link))
 
@@ -67,7 +70,7 @@ def process_url(url, cookies, city, pbar):
     return products, prices, city
 
 
-def download_site():
+async def download_site():
     execution = last_execution()
     if execution == get_current_date():
         logger.info(f"Already executed today: {execution}")
@@ -84,8 +87,13 @@ def download_site():
 
     progress_bar = tqdm(total=len(urls) * len(cookies), desc="Progress") if show_progress else nullcontext()
 
-    with progress_bar as pbar:
-        raw_results = [process_url(url, cookie, city, pbar) for url in urls for city, cookie in cookies]
+    async with aiohttp.ClientSession() as session:
+        with progress_bar as pbar:
+            tasks = [process_url(session,url, cookie, city, pbar) for url in urls for city, cookie in cookies]
+            raw_results = await asyncio.gather(*tasks)
+
+    # with progress_bar as pbar:
+    #     raw_results = [process_url(url, cookie, city, pbar) for url in urls for city, cookie in cookies]
     logger.info("Salvnado os dados no banco")
     close_gap()
     processed_data = process_raw_data(raw_results)
@@ -102,4 +110,4 @@ def download_site():
     log_execution()
 
     end_time = time.time()
-    logger.info(f"Total execution time: {(end_time - start_time) / 60:.2f} minutes.")
+    logger.info(f"Total execution time: {end_time - start_time:.2f} segundos.")

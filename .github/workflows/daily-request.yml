@@ -7,3 +7,10 @@ on:
 jobs:
   start-machine:
     runs-on: ubuntu-latest
+    steps:
+      - name: Iniciar máquina
+        run: |
+          curl -X POST \
+            "https://api.machines.dev/v1/apps/scraper-ig/machines/e286e173c46098/start" \
+            -H "Authorization: Bearer ${{ secrets.FLY_API_TOKEN }}" \
+            -H "Content-Type: application/json"
