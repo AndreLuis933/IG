@@ -8,7 +8,6 @@ import aiohttp
 from cookies.load_cookies import load_cookie
 from database import (
     close_gap,
-    get_null_product_category,
     last_execution,
     log_execution,
     process_raw_data,
@@ -17,7 +16,6 @@ from database import (
     save_product,
     set_cities,
 )
-from network.request import fetch
 from network.request_async import fetch_async
 from tqdm import tqdm
 from utils.categories import get_categories
@@ -89,11 +87,9 @@ async def download_site():
 
     async with aiohttp.ClientSession() as session:
         with progress_bar as pbar:
-            tasks = [process_url(session,url, cookie, city, pbar) for url in urls for city, cookie in cookies]
+            tasks = [process_url(session, url, cookie, city, pbar) for url in urls for city, cookie in cookies]
             raw_results = await asyncio.gather(*tasks)
 
-    # with progress_bar as pbar:
-    #     raw_results = [process_url(url, cookie, city, pbar) for url in urls for city, cookie in cookies]
     logger.info("Salvnado os dados no banco")
     close_gap()
     processed_data = process_raw_data(raw_results)

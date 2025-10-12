@@ -25,7 +25,7 @@ def load_cookie(formato="requests"):
         #collect_cookies()
         pass
 
-    with open("scraper/cookies.json") as file:
+    with open("cookies.json") as file:
         try:
             # Tentar decodificar o JSON
             cookies_data = json.load(file)

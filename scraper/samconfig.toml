@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "Ig-scraper"
+resolve_s3 = true
+s3_prefix = "Ig-scraper"
+region = "us-east-1"
+profile = "dev-sso"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

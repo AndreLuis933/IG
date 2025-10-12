@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Ig-scraper
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: URL do banco de dados
+    NoEcho: true
+
+  ProjectUrl:
+    Type: String
+    Description: URL do projeto Supabase
+    NoEcho: true
+
+  ApiKeySecret:
+    Type: String
+    Description: Chave da API do Supabase
+    NoEcho: true
+
+Resources:
+  IgScraperFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: ig-scraper
+      CodeUri: src/
+      Handler: main.handler
+      Runtime: python3.12
+      Timeout: 60
+      MemorySize: 512
+      Architectures:
+        - x86_64
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+          PROJECT_URL: !Ref ProjectUrl
+          API_KEY_SECRET: !Ref ApiKeySecret
+          SHOW_PROGRESS: false
+      Events:
+        CronSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 16 * * ? *)
+            Name: ig-scraper-rule
+            Enabled: true
+            Description: "Regra EventBridge que dispara ig-scraper diariamente às 16:00 UTC"

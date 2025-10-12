@@ -5,9 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from supabase import create_client
 
-load_dotenv()
-# Configuração da conexão
+#load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    msg = "DATABASE_URL não está definida. Defina a variável de ambiente DATABASE_URL"
+    raise RuntimeError(msg)
 ENGINE = create_engine(DATABASE_URL, pool_pre_ping=True)
 Session = sessionmaker(bind=ENGINE)
 DATABASE_TYPE = ENGINE.dialect.name
