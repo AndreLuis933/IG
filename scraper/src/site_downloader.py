@@ -94,8 +94,8 @@ async def download_site():
     close_gap()
     processed_data = process_raw_data(raw_results)
 
-    save_product(processed_data.products)
-    logger.info(f"{len(processed_data.products)} produtos atualizados ou inseridos com sucesso.")
+    alteracoes = save_product(processed_data.products)
+    logger.info(f"{alteracoes} produtos atualizados ou inseridos com sucesso.")
 
     alteracoes = save_price(processed_data.uniform_prices, processed_data.variable_prices)
     logger.info(f"Total de alterações de preço: {alteracoes}")

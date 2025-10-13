@@ -1,10 +1,9 @@
 import asyncio
 import logging
+import random
 
 import aiohttp
-
 from config.request_config import HEADERS
-import random
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ def calculate_delay(attempt, base_delay=5, increment=5, max_delay=60, jitter_fac
     jitter = random.uniform(0, delay * jitter_factor)
     return delay + jitter
 
-MAX_CONCURRENT_REQUESTS = 5
+MAX_CONCURRENT_REQUESTS = 10
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
 

@@ -74,7 +74,7 @@ propcache==0.4.1
     # via
     #   aiohttp
     #   yarl
-psycopg2==2.9.11
+psycopg2-binary==2.9.11
     # via scraper (pyproject.toml)
 pycparser==2.23
     # via cffi

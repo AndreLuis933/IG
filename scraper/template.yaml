@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Ig-scraper
 
@@ -26,7 +26,7 @@ Resources:
       CodeUri: src/
       Handler: main.handler
       Runtime: python3.12
-      Timeout: 60
+      Timeout: 150
       MemorySize: 512
       Architectures:
         - x86_64
@@ -45,4 +45,4 @@ Resources:
             Schedule: cron(0 16 * * ? *)
             Name: ig-scraper-rule
             Enabled: true
-            Description: "Regra EventBridge que dispara ig-scraper diariamente às 16:00 UTC"
+            Description: Regra EventBridge que dispara ig-scraper diariamente às 16:00 UTC
