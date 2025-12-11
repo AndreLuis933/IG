@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Date, Float, ForeignKey, Index, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, Column, Date, Float, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -44,6 +44,11 @@ class Cidade(Base):
 
     disponibilidades = relationship("DisponibilidadeCidade", back_populates="cidade")
     historico_precos = relationship("HistoricoPreco", back_populates="cidade")
+    metricas_diarias = relationship(
+        "MetricasDiariasCidade",
+        back_populates="cidade",
+        cascade="all, delete-orphan",
+    )
 
 
 class HistoricoPreco(Base):
@@ -95,6 +100,21 @@ class LogExecucao(Base):
     data_execucao = Column(Date, primary_key=True)
 
 
+class MetricasDiariasCidade(Base):
+    __tablename__ = "metricas_diarias_cidade"
+
+    data = Column(Date, primary_key=True, nullable=False)
+    cidade_id = Column(
+        Integer,
+        ForeignKey("cidades.id", ondelete="CASCADE"),
+        primary_key=True,
+        nullable=False,
+    )
+    variacao_media_preco = Column(Numeric, nullable=True)
+    num_produtos_disponiveis = Column(Integer, nullable=False)
+    preco_medio_geral = Column(Numeric, nullable=True)
+
+    cidade = relationship("Cidade", back_populates="metricas_diarias")
 
 
 def init_db():
