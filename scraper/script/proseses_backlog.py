@@ -19,7 +19,6 @@ load_env()
 
 SERVICE_ROLE = os.getenv("SERVICE_ROLE")
 PROJECT = os.getenv("PROJECT")
-print(SERVICE_ROLE, PROJECT)
 URL = f"https://{PROJECT}.supabase.co/functions/v1/processar-metricas"
 
 headers = {"Authorization": f"Bearer {SERVICE_ROLE}"}

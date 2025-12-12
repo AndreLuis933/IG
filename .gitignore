@@ -37,12 +37,3 @@ venv.bak/
 .aws-sam/
 
 *node_modules
-
-# Supabase
-.branches
-.temp
-
-# dotenvx
-.env.keys
-.env.local
-.env.*.local
