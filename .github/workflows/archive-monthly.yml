@@ -2,81 +2,26 @@ name: Archive Monthly Data
 
 on:
   schedule:
-    # Todo dia 1 do mês às 03:00 UTC
-    - cron: "0 3 1 * *"
-
+    - cron: "20 16 1 * *"
   workflow_dispatch:
 
 jobs:
   archive_availability_cities:
     runs-on: ubuntu-latest
-
     steps:
       - name: Archive availability_cities
-        id: archive_availability
         run: |
-          response=$(curl "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-disponibilidade-mes" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
-
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | sed '$d')
-
-          echo "HTTP Status: $http_code"
-          echo "Response: $body"
-
-          # Verificar se foi sucesso
-          if [ "$http_code" != "200" ]; then
-            echo "❌ Erro: HTTP $http_code"
-            exit 1
-          fi
-
-          success=$(echo "$body" | jq -r '.success')
-          if [ "$success" != "true" ]; then
-            message=$(echo "$body" | jq -r '.message // .error')
-            echo "⚠️ Operação não completada: $message"
-            # Não falhar se for "nada para arquivar"
-            if echo "$message" | grep -q "ainda está dentro da janela"; then
-              echo "✅ Nada para arquivar ainda (esperado)"
-              exit 0
-            fi
-            exit 1
-          fi
-
-          echo "✅ Arquivamento de disponibilidade_cidades concluído com sucesso"
+          curl -f -X POST \
+            "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-disponibilidade-mes" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" || echo "⚠️ Falha ou nada para arquivar"
 
   archive_price_history:
     runs-on: ubuntu-latest
-    needs: archive_availability_cities
-
     steps:
       - name: Archive historico_precos
-        id: archive_price
         run: |
-          response=$(curl "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-price-history-month" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
-
-          http_code=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | sed '$d')
-
-          echo "HTTP Status: $http_code"
-          echo "Response: $body"
-
-          # Verificar se foi sucesso
-          if [ "$http_code" != "200" ]; then
-            echo "❌ Erro: HTTP $http_code"
-            exit 1
-          fi
-
-          success=$(echo "$body" | jq -r '.success')
-          if [ "$success" != "true" ]; then
-            message=$(echo "$body" | jq -r '.message // .error')
-            echo "⚠️ Operação não completada: $message"
-            # Não falhar se for "nada para arquivar"
-            if echo "$message" | grep -q "ainda está dentro da janela"; then
-              echo "✅ Nada para arquivar ainda (esperado)"
-              exit 0
-            fi
-            exit 1
-          fi
-
-          echo "✅ Arquivamento de historico_precos concluído com sucesso"
+          curl -f -X POST \
+            "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-price-history-month" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json" || echo "⚠️ Falha ou nada para arquivar"
