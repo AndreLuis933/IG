@@ -15,10 +15,8 @@ jobs:
       - name: Archive availability_cities
         id: archive_availability
         run: |
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-disponibilidade-mes" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json")
+          response=$(curl "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-disponibilidade-mes" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
@@ -54,10 +52,8 @@ jobs:
       - name: Archive historico_precos
         id: archive_price
         run: |
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-price-history-month" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Content-Type: application/json")
+          response=$(curl "${{ secrets.SUPABASE_FUNCTION_URL }}/archive-price-history-month" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
