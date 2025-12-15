@@ -18,7 +18,6 @@ import {
   getAvailableDateOptions,
 } from "./utils/dataProcessing";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
 
@@ -83,9 +82,8 @@ function App() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       {isProd && <Analytics />}
-      {isProd && <SpeedInsights />}
       <Typography variant="h4" gutterBottom>
-        Métricas Diárias por Cidade
+        Análise de Preços do Supermercado Irmãos Gonçalves
       </Typography>
 
       {error && (
