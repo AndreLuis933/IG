@@ -1,5 +1,5 @@
 // src/utils/dataProcessing.ts
-import type { MetricaDiaria, DateFilterKey } from "../types";
+import type { MetricaDiaria, DateFilterKey, DateFilterOption } from "../types";
 
 export const processMetricas = (metricas: MetricaDiaria[]): MetricaDiaria[] => {
   let variacaoAcumulada = 0;
@@ -27,6 +27,7 @@ const addMonths = (date: Date, months: number) => {
   return d;
 };
 
+// filtro, agora com "all"
 export const filterMetricasByDate = (
   metricas: MetricaDiaria[],
   filterKey: DateFilterKey,
@@ -35,6 +36,11 @@ export const filterMetricasByDate = (
   dataMinima?: string | null
 ): MetricaDiaria[] => {
   if (!metricas.length) return metricas;
+
+  // "Tudo" -> não filtra por data (já vem só o que existe no banco)
+  if (filterKey === "all") {
+    return metricas;
+  }
 
   // intervalo customizado
   if (filterKey === "custom") {
@@ -55,7 +61,7 @@ export const filterMetricasByDate = (
   const now = new Date();
   now.setHours(23, 59, 59, 999);
 
-  const monthsMap: Record<string, number> = {
+  const monthsMap: Record<Exclude<DateFilterKey, "all" | "custom">, number> = {
     "3m": -3,
     "6m": -6,
     "9m": -9,
@@ -63,7 +69,8 @@ export const filterMetricasByDate = (
     "24m": -24,
   };
 
-  const months = monthsMap[filterKey] ?? -12;
+  const months =
+    monthsMap[filterKey as Exclude<DateFilterKey, "all" | "custom">];
   let start = addMonths(now, months);
   start.setHours(0, 0, 0, 0);
 
@@ -82,8 +89,23 @@ export const filterMetricasByDate = (
   });
 };
 
-export const getAvailableDateOptions = (dataMinima: string | null) => {
-  if (!dataMinima) return [];
+// base de opções (ordem: Tudo, 3m, 6m, 9m, 12m, 24m, custom)
+export const getBaseDateFilterOptions = (): DateFilterOption[] => [
+  { key: "all", label: "Tudo" },
+  { key: "3m", label: "Últimos 3 meses", months: 3 },
+  { key: "6m", label: "Últimos 6 meses", months: 6 },
+  { key: "9m", label: "Últimos 9 meses", months: 9 },
+  { key: "12m", label: "Últimos 12 meses", months: 12 },
+  { key: "24m", label: "Últimos 24 meses", months: 24 },
+  { key: "custom", label: "Período personalizado" },
+];
+
+// limita os presets pela data mínima disponível
+export const getAvailableDateOptions = (
+  dataMinima: string | null
+): DateFilterOption[] => {
+  const base = getBaseDateFilterOptions();
+  if (!dataMinima) return base;
 
   const now = new Date();
   const minDate = new Date(dataMinima);
@@ -91,23 +113,9 @@ export const getAvailableDateOptions = (dataMinima: string | null) => {
     (now.getFullYear() - minDate.getFullYear()) * 12 +
     (now.getMonth() - minDate.getMonth());
 
-  const options = [
-    { key: "3m" as const, label: "Últimos 3 meses", months: 3 },
-    { key: "6m" as const, label: "Últimos 6 meses", months: 6 },
-    { key: "9m" as const, label: "Últimos 9 meses", months: 9 },
-    { key: "12m" as const, label: "Últimos 12 meses", months: 12 },
-    { key: "24m" as const, label: "Últimos 24 meses", months: 24 },
-  ];
-
-  // filtra apenas opções que cabem no intervalo disponível
-  const available = options.filter((opt) => opt.months <= diffMonths);
-
-  // sempre adiciona a opção custom
-  available.push({
-    key: "custom" as const,
-    label: "Período personalizado",
-    months: 0,
+  // mantém sempre "all" e "custom"; filtra só os que têm months
+  return base.filter((opt) => {
+    if (!opt.months) return true;
+    return opt.months <= diffMonths;
   });
-
-  return available;
 };

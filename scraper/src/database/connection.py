@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     msg = "DATABASE_URL não está definida. Defina a variável de ambiente DATABASE_URL"
     raise RuntimeError(msg)
-ENGINE = create_engine(DATABASE_URL, pool_pre_ping=True)
+ENGINE = create_engine(DATABASE_URL, pool_pre_ping=True,connect_args={"client_encoding": "utf8"})
 Session = sessionmaker(bind=ENGINE)
 DATABASE_TYPE = ENGINE.dialect.name
 LOCAL = os.getenv("LOCAL", "false").lower() == "true"

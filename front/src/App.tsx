@@ -7,11 +7,18 @@ import { MetricChart } from "./components/MetricChart";
 import { DateFilter } from "./components/DateFilter";
 import { useCidades } from "./hooks/useCidades";
 import { useMetricas } from "./hooks/useMetricas";
-import type { Cidade, MetricKey, DateFilterKey } from "./types";
+import type {
+  Cidade,
+  MetricKey,
+  DateFilterKey,
+  DateFilterOption,
+} from "./types";
 import {
   filterMetricasByDate,
   getAvailableDateOptions,
 } from "./utils/dataProcessing";
+
+const formatDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
 
 function App() {
   const [cidadeSelecionada, setCidadeSelecionada] = useState<Cidade | null>(
@@ -20,7 +27,8 @@ function App() {
   const [metricaSelecionada, setMetricaSelecionada] =
     useState<MetricKey | null>("preco_medio_geral");
 
-  const [dateFilterKey, setDateFilterKey] = useState<DateFilterKey>("3m");
+  // agora default é "all"
+  const [dateFilterKey, setDateFilterKey] = useState<DateFilterKey>("all");
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
 
@@ -38,7 +46,31 @@ function App() {
 
   const error = errorCidades || errorMetricas;
 
-  const dateOptions = getAvailableDateOptions(dataMinima);
+  // opções base limitadas pela data mínima
+  const baseOptions = getAvailableDateOptions(dataMinima);
+
+  // agora ajustamos os labels de "all" e "custom" para mostrar o intervalo
+  const todayIso = new Date().toISOString().split("T")[0];
+
+  const dateOptions: DateFilterOption[] = baseOptions.map((opt) => {
+    if (opt.key === "all" && dataMinima) {
+      return {
+        ...opt,
+        label: `Tudo (${formatDate(dataMinima)} - ${formatDate(todayIso)})`,
+      };
+    }
+
+    if (opt.key === "custom" && customStartDate && customEndDate) {
+      return {
+        ...opt,
+        label: `Personalizado (${formatDate(customStartDate)} - ${formatDate(
+          customEndDate
+        )})`,
+      };
+    }
+
+    return opt;
+  });
 
   const metricasFiltradas = filterMetricasByDate(
     metricas,

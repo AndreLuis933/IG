@@ -168,7 +168,7 @@ serve(async (req) => {
     const pageSize = 1000;
     let offset = 0;
     let totalRows = 0;
-    let csvContent = "id,produto_id,preco,data_inicio,data_fim\n";
+    let csvContent = "id,produto_id,preco,cidade_id,data_inicio,data_fim\n";
 
     while (true) {
       const { data: rows, error: fetchError } = await supabase

@@ -20,13 +20,19 @@ export const METRIC_OPTIONS = [
 
 export type MetricKey = (typeof METRIC_OPTIONS)[number]["key"];
 
-export const DATE_FILTER_OPTIONS = [
-  { key: "3m", label: "Últimos 3 meses", months: 3 },
-  { key: "6m", label: "Últimos 6 meses", months: 6 },
-  { key: "9m", label: "Últimos 9 meses", months: 9 },
-  { key: "12m", label: "Últimos 12 meses", months: 12 },
-  { key: "24m", label: "Últimos 24 meses", months: 24 },
-  { key: "custom", label: "Período personalizado" },
-] as const;
+// agora inclui "all" e "custom"
+export type DateFilterKey =
+  | "all"
+  | "3m"
+  | "6m"
+  | "9m"
+  | "12m"
+  | "24m"
+  | "custom";
 
-export type DateFilterKey = (typeof DATE_FILTER_OPTIONS)[number]["key"];
+// tipo comum para opções de filtro de data
+export interface DateFilterOption {
+  key: DateFilterKey;
+  label: string;
+  months?: number; // usado só para os presets em meses
+}

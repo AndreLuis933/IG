@@ -10,13 +10,7 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import type { DateFilterKey } from "../types";
-
-interface DateFilterOption {
-  key: DateFilterKey;
-  label: string;
-  months: number;
-}
+import type { DateFilterKey, DateFilterOption } from "../types";
 
 interface DateFilterProps {
   options: DateFilterOption[];
