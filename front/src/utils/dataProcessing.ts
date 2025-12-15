@@ -15,7 +15,7 @@ export const processMetricas = (metricas: MetricaDiaria[]): MetricaDiaria[] => {
 };
 
 export const formatCidadeNome = (nome: string, id: number): string => {
-  if (id === 1 || nome.toLowerCase() === "sem cidade") {
+  if (id === 1) {
     return "Todas as Cidades (Agregado)";
   }
   return nome;
@@ -27,7 +27,6 @@ const addMonths = (date: Date, months: number) => {
   return d;
 };
 
-// filtro, agora com "all"
 export const filterMetricasByDate = (
   metricas: MetricaDiaria[],
   filterKey: DateFilterKey,
@@ -37,12 +36,10 @@ export const filterMetricasByDate = (
 ): MetricaDiaria[] => {
   if (!metricas.length) return metricas;
 
-  // "Tudo" -> não filtra por data (já vem só o que existe no banco)
   if (filterKey === "all") {
     return metricas;
   }
 
-  // intervalo customizado
   if (filterKey === "custom") {
     if (!customStart || !customEnd) return metricas;
 
@@ -57,7 +54,6 @@ export const filterMetricasByDate = (
     });
   }
 
-  // presets em meses
   const now = new Date();
   now.setHours(23, 59, 59, 999);
 
@@ -74,7 +70,6 @@ export const filterMetricasByDate = (
   let start = addMonths(now, months);
   start.setHours(0, 0, 0, 0);
 
-  // limitar pela data mínima do banco
   if (dataMinima) {
     const minDate = new Date(dataMinima);
     minDate.setHours(0, 0, 0, 0);
@@ -89,7 +84,6 @@ export const filterMetricasByDate = (
   });
 };
 
-// base de opções (ordem: Tudo, 3m, 6m, 9m, 12m, 24m, custom)
 export const getBaseDateFilterOptions = (): DateFilterOption[] => [
   { key: "all", label: "Tudo" },
   { key: "3m", label: "Últimos 3 meses", months: 3 },
@@ -100,7 +94,6 @@ export const getBaseDateFilterOptions = (): DateFilterOption[] => [
   { key: "custom", label: "Período personalizado" },
 ];
 
-// limita os presets pela data mínima disponível
 export const getAvailableDateOptions = (
   dataMinima: string | null
 ): DateFilterOption[] => {
@@ -113,7 +106,6 @@ export const getAvailableDateOptions = (
     (now.getFullYear() - minDate.getFullYear()) * 12 +
     (now.getMonth() - minDate.getMonth());
 
-  // mantém sempre "all" e "custom"; filtra só os que têm months
   return base.filter((opt) => {
     if (!opt.months) return true;
     return opt.months <= diffMonths;

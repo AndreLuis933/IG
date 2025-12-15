@@ -17,7 +17,6 @@ export const useCidades = () => {
       const { data, error } = await supabase
         .from("cidades")
         .select("id, nome")
-        .order("nome", { ascending: true });
 
       if (error) {
         setError(`Erro ao carregar cidades: ${error.message}`);

@@ -17,17 +17,19 @@ import {
   filterMetricasByDate,
   getAvailableDateOptions,
 } from "./utils/dataProcessing";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("pt-BR");
 
 function App() {
+  const isProd = process.env.NODE_ENV === "production";
   const [cidadeSelecionada, setCidadeSelecionada] = useState<Cidade | null>(
     null
   );
   const [metricaSelecionada, setMetricaSelecionada] =
-    useState<MetricKey | null>("preco_medio_geral");
+    useState<MetricKey | null>("variacao_media_preco");
 
-  // agora default é "all"
   const [dateFilterKey, setDateFilterKey] = useState<DateFilterKey>("all");
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
@@ -46,10 +48,8 @@ function App() {
 
   const error = errorCidades || errorMetricas;
 
-  // opções base limitadas pela data mínima
   const baseOptions = getAvailableDateOptions(dataMinima);
 
-  // agora ajustamos os labels de "all" e "custom" para mostrar o intervalo
   const todayIso = new Date().toISOString().split("T")[0];
 
   const dateOptions: DateFilterOption[] = baseOptions.map((opt) => {
@@ -82,6 +82,8 @@ function App() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      {isProd && <Analytics />}
+      {isProd && <SpeedInsights />}
       <Typography variant="h4" gutterBottom>
         Métricas Diárias por Cidade
       </Typography>

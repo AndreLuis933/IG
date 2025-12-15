@@ -92,10 +92,12 @@ export const DateFilter = ({
               fullWidth
               value={tempStart ?? ""}
               onChange={(e) => setTempStart(e.target.value || null)}
-              InputLabelProps={{ shrink: true }}
-              inputProps={{
-                min: dataMinima ?? undefined,
-                max: today,
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: {
+                  min: dataMinima ?? undefined,
+                  max: today,
+                },
               }}
             />
             <TextField
@@ -104,10 +106,12 @@ export const DateFilter = ({
               fullWidth
               value={tempEnd ?? ""}
               onChange={(e) => setTempEnd(e.target.value || null)}
-              InputLabelProps={{ shrink: true }}
-              inputProps={{
-                min: tempStart ?? dataMinima ?? undefined,
-                max: today,
+              slotProps={{
+                inputLabel: { shrink: true },
+                htmlInput: {
+                  min: tempStart ?? dataMinima ?? undefined,
+                  max: today,
+                },
               }}
             />
           </Box>

@@ -37,7 +37,6 @@ export const useMetricas = (cidadeSelecionada: Cidade | null) => {
         const metricasProcessadas = processMetricas(data || []);
         setMetricas(metricasProcessadas);
 
-        // pega a data mais antiga
         if (metricasProcessadas.length > 0) {
           setDataMinima(metricasProcessadas[0].data);
         } else {
