@@ -1,288 +1,141 @@
-[![Python application](https://github.com/AndreLuis933/IG/actions/workflows/daily-request.yml/badge.svg)](https://github.com/AndreLuis933/IG/actions/workflows/daily-request.yml)
-![Docker support](https://img.shields.io/badge/docker-supported-blue)
-[![License](https://img.shields.io/github/license/AndreLuis933/IG)](LICENSE)
+### 📊 Monitor de Preços Irmão Gonçalves
 
-# 🛒 Irmãos Gonçalves Scraper
+## ✨ Sobre o Projeto
 
-Automatize o monitoramento de preços do maior supermercado de Rondônia! Este projeto realiza scraping diário do site [Irmãos Gonçalves](https://www.irmaosgoncalves.com.br/), armazena os dados em banco de dados relacional e oferece visualização interativa via Streamlit.
+Este projeto é um sistema de **monitoramento diário de preços e disponibilidade** do site Irmão Gonçalves, pensado como **projeto de portfólio** com foco em:
 
-> 💻 **Veja a visualização online:**  
-> [https://view-ig.streamlit.app/](https://view-ig.streamlit.app/)
+- Coletar **centenas de milhares de registros por dia**,
+- Operar **100% em free tier** (AWS, Supabase, Vercel),
+- Oferecer um **dashboard web** com métricas agregadas por cidade, leve e rápido.
 
----
+A arquitetura foi desenhada para ser **barata, escalável e resiliente**, otimizando o uso de banco de dados com técnicas de **intervalos de vigência** e **retenção de 6 meses** com arquivamento em CSV.
 
-## Índice
-
-1. [Funcionalidades](#funcionalidades)
-2. [Visualização dos Dados](#visualizacao-dos-dados)
-3. [Estrutura do Projeto](#estrutura-do-projeto)
-4. [Sobre a infraestrutura em nuvem](#sobre-a-infraestrutura-em-nuvem)
-5. [Otimização e volume de dados](#otimizacao-e-volume-de-dados)
-6. [Estrutura do Banco de Dados](#estrutura-do-banco-de-dados)
-7. [Pré-requisitos para rodar localmente](#pre-requisitos-para-rodar-localmente)
-8. [Instalação](#instalacao)
-9. [Configuração](#configuracao)
-10. [Como Usar](#como-usar)
-11. [Licença](#licenca)
-12. [Contato](#contato)
+**[🚀 Veja a demo online aqui!](https://analize-ig.vercel.app/)**
 
 ---
 
-## ✨ Funcionalidades
+## 🚀 Tecnologias Utilizadas
 
-- 🕸️ Scraping automatizado do site do Irmãos Gonçalves
-- 📦 Extração de nome, preço, categoria, imagem e link dos produtos
-- ☁️ Armazenamento dos dados em banco PostgreSQL
-- 📊 Visualização da evolução de preços por categoria via Streamlit
-- 🐳 Deploy simplificado com Docker e Fly.io
-- 🔄 Automação diária via GitHub Actions
-
----
-
-## 📊 Visualização dos Dados
-
-Veja abaixo exemplos de como os dados podem ser visualizados na aplicação Streamlit:
-
-![Dashboard Geral](docs/images/dashboard_geral.png)  
-_Dashboard principal mostrando a evolução dos preços médios ao longo do tempo._
-
-![Filtro por Cidade](docs/images/Filtros.png)  
-_Menu lateral com filtros dinâmicos para cidade, nome, preço, categoria e data._
-
-![Gráfico por Categoria](docs/images/grafico_categoria.png)  
-_Gráfico comparativo da evolução de preços por categoria de produto._
-
-![Tabela de Dados](docs/images/tabela_dados.png)  
-_Tabela interativa com todos os dados brutos, incluindo opção de download em CSV._
+| Categoria             | Tecnologia(s)                                               |
+| :-------------------- | :--------------------------------------------------------- |
+| **Coleta / Backend**  | Python, `aiohttp`, SQLAlchemy                              |
+| **Infra de Coleta**   | AWS Lambda, EventBridge/CloudWatch (cron diário)          |
+| **Banco / Storage**   | Supabase Postgres, Supabase Storage (CSV), `pg_cron`      |
+| **Funções Backend**   | Supabase Edge Functions, GitHub Actions (cron mensal)     |
+| **Front-end**         | React, MUI (Material UI), MUI X Charts                    |
+| **Integração Dados**  | `@supabase/supabase-js`                                   |
+| **Hospedagem Front**  | Vercel                                                    |
 
 ---
 
-## 📁 Estrutura do Projeto
+## ⚙️ Como Funciona (Visão Geral)
 
-```plaintext
-IRMAOS-GONCALVES-SCRAPER/
-├── .github/
-├── scraper/
-│   ├── ...
-├── view/
-│   ├── ...
-├── .dockerignore
-├── .env
-├── .gitignore
-├── LICENSE
-├── README.md
-```
+O sistema é dividido em três blocos principais que trabalham em conjunto:
 
-- **scraper/**: Scripts de coleta e processamento de dados
-- **view/**: Aplicação Streamlit para visualização
-- **.github/**: Workflows de automação
+### 1. Scraper Diário em Python (AWS Lambda)
 
----
-
-## ☁️ Sobre a infraestrutura em nuvem
-
-Este projeto foi projetado para rodar diariamente de forma **totalmente automatizada e otimizada para custos** em ambiente de nuvem. Utilizamos [GitHub Actions](https://github.com/features/actions) para orquestração, [Fly.io](https://fly.io/) para hospedar os containers Docker do scraper (com desligamento automático da máquina após a execução, o que permite que o projeto rode **sem custo financeiro dentro do plano gratuito**), [Supabase](https://supabase.com/) para armazenamento dos dados e [Streamlit Cloud](https://streamlit.io/cloud) para a visualização online.
-
-Essas configurações permitem que o scraping, armazenamento e visualização dos dados ocorram de forma autônoma, eficiente e sem intervenção manual, garantindo a atualização contínua dos dados com custo zero.
-
-No entanto, toda a documentação deste README é focada no uso local, para facilitar a replicação e testes por qualquer pessoa. Se você tiver interesse em saber mais sobre a automação e deploy em nuvem, entre em contato.
+- Função **AWS Lambda (512 MB)** executando **1 vez por dia**, por volta do meio-dia.
+- Coleta dados a partir da **API interna** usada pelo próprio site.
+- Usa **requisições assíncronas com `aiohttp`**:
+  - Até **10 conexões simultâneas**, balanceando velocidade e respeito à infra do site.
+- **Manipulação de cookies por cidade**:
+  - Cada chamada é feita com o contexto de cidade correto (11 cidades monitoradas).
+- Domínio monitorado:
+  - **17 categorias base** com subcategorias em até **3 níveis**,
+  - Centenas de requisições por dia (cidade × categoria/subcategoria).
+- Dados coletados (JSON):
+  - Nome, link, categoria, imagem do produto,
+  - Preço por cidade,
+  - Disponibilidade por cidade,
+  - Metadados para reconstruir o histórico ao longo do tempo.
+- Performance típica:
+  - ~**20 s** para coleta assíncrona,
+  - ~**60 s** para gravação no Postgres via SQLAlchemy.
 
 ---
 
-## 📈 Otimização e volume de dados
+### 2. Banco de Dados e Otimizações de Espaço (Supabase)
 
-Para garantir eficiência e evitar custos desnecessários no Supabase, o projeto adota estratégias avançadas de compressão e agrupamento dos dados históricos. Em vez de registrar uma linha para cada dia, cada produto e cada cidade, os dados são armazenados em intervalos contínuos de tempo e, quando possível, agrupados por cidade. Isso reduz drasticamente o volume de registros, mantendo o histórico completo e detalhado para análise.
+O backend é um **PostgreSQL no Supabase**, com **storage de arquivos (CSV)** para histórico frio. O foco é **sobreviver ao volume** dentro do free tier.
 
-O monitoramento está em operação desde **26/04/2025**, cobrindo atualmente **11 mercados** (lojas) e cerca de **18.000 produtos por mercado**. Graças a essas otimizações, mesmo com o crescimento contínuo dos dados, o projeto se mantém sustentável e eficiente. Atualmente, a maior tabela (`disponibilidade_cidades`, que monitora a disponibilidade diária de cada produto em cada loja) já conta com mais de **823 mil registros**.
+#### a) Armazenamento por Intervalos (Ranges)
 
-> Para detalhes técnicos sobre a estrutura das tabelas e regras de agrupamento, consulte a seção [Estrutura do Banco de Dados](#estrutura-do-banco-de-dados).
+Para **preço** e **disponibilidade**, o sistema não grava um registro por dia, e sim **intervalos de vigência**:
 
-<details>
-<summary>🗺️ Ver cidades e identificação das lojas monitoradas</summary>
+- Cada linha registra:
+  - `data_inicio` do intervalo,
+  - `data_fim` (nula enquanto o valor estiver vigente).
+- Enquanto não há mudança de preço/estado, **nenhum novo registro é criado**.
+- Quando muda:
+  - O intervalo anterior é fechado,
+  - Um novo intervalo é inserido com o valor atualizado.
 
-**Cidades e lojas monitoradas:**
+Resultado prático:
 
-- Ariquemes
-- Cacoal
-- Jaru
-- Ouro Preto do Oeste
-- Rolim de Moura
-- Vilhena
+- Modelo ingênuo: ~**200.000 linhas/dia**,
+- Com ranges: ~**10.000 linhas/dia** (apenas mudanças),
+- Redução de mais de uma ordem de grandeza no crescimento diário nas tabelas críticas.
 
-**Ji-Paraná**
-- Ji-Parana 1: DOIS DE ABRIL — Av. Mal. Rondon c/ Rua dos Mineiros, nº 1793, CEP: 76.900-137
-- Ji-Parana 2: CAFEZINHO — Av. das Seringueiras, nº 1201, CEP: 76.913-112
+#### b) Janela de 6 Meses + Arquivamento Mensal em CSV
 
-**Porto Velho**
-- Porto Velho 1: AV. SETE DE SETEMBRO (N.S. DAS GRAÇAS) — CEP: 76.804-142
-- Porto Velho 2: AV. AMAZONAS (TIRADENTES) — CEP: 76.824-652
-- Porto Velho 3: AVENIDA JATUARANA (CALADINHO) — CEP: 76.808-110
+Além de reduzir o crescimento diário, o sistema controla **quanto tempo os dados ficam “quentes”**:
 
-</details>
+- Apenas os **últimos 6 meses** permanecem nas tabelas principais.
+- Quando um mês sai dessa janela:
+  - Os registros daquele mês são **exportados para um CSV**,
+  - O arquivo é salvo no **Supabase Storage**,
+  - As linhas são apagadas das tabelas ativas.
 
----
+Orquestração:
 
-## 🗄️ Estrutura do Banco de Dados
+- Processo mensal via **Edge Function** no Supabase,
+- Disparo por **GitHub Action** agendada (`cron`),
+- Mantém o banco dentro do espaço do plano gratuito, com volume máximo controlado.
 
-O projeto utiliza um banco relacional com as seguintes tabelas principais:
+#### c) Tabela de Resumo Diário (Fonte do Front)
 
-<details>
-<summary>Clique para ver o diagrama Mermaid</summary>
+Para evitar que o front consulte diretamente tabelas gigantes:
 
-```mermaid
-erDiagram
-    PRODUTOS ||--o| IMAGENS : tem
-    PRODUTOS ||--o{ HISTORICO_PRECOS : possui
-    PRODUTOS ||--o{ DISPONIBILIDADE_CIDADES : possui
-
-    CIDADES ||--o{ HISTORICO_PRECOS : possui
-    CIDADES ||--o{ DISPONIBILIDADE_CIDADES : possui
-
-    PRODUTOS {
-        int id PK
-        string nome
-        string link
-        string categoria
-        date data_atualizacao
-    }
-
-    IMAGENS {
-        int produto_id PK,FK
-        string link_imagem
-        date data_atualizacao
-    }
-
-    CIDADES {
-        int id PK
-        string nome
-    }
-
-    HISTORICO_PRECOS {
-        int id PK
-        int produto_id FK
-        int cidade_id FK
-        float preco
-        date data_inicio
-        date data_fim
-    }
-
-    DISPONIBILIDADE_CIDADES {
-        int id PK
-        int produto_id FK
-        int cidade_id FK
-        bool disponivel
-        date data_inicio
-        date data_fim
-    }
-
-    LOG_EXECUCAO {
-        date data_execucao PK
-    }
-```
-
-</details>
-
-**Observações de Implementação:**
-
-- As datas de início e fim (`data_inicio`, `data_fim`) são inclusivas.
-- As tabelas são criadas automaticamente na primeira execução do scraper, não é necessário rodar scripts SQL manualmente.
-- Na tabela `historico_precos`, só é salvo um registro para todas as cidades se o preço for igual em todas; caso contrário, é salvo um preço específico para cada cidade.
-- Se o preço for o mesmo para todas as cidades disponíveis naquele dia, o `id` da cidade será `1`.
+- Uma **tabela de resumo diário por cidade** é gerada a partir dos dados brutos.
+- Métricas principais:
+  - Variação acumulada de preço,
+  - Número de produtos disponíveis por dia,
+  - Preço médio geral diário por cidade.
+- Implementação:
+  - **Função SQL** no Postgres,
+  - Execução via **`pg_cron`** alguns minutos após o scraper diário.
+- Resultado:
+  - Dataset pequeno, estável e pronto para consumo direto pelo dashboard.
 
 ---
 
-## 🛠️ Pré-requisitos para rodar localmente
+### 3. Front-end: Dashboard de Análise (React + Vercel)
 
-- Python 3.12+
-- PostgreSQL 15+
-- Navegador web compatível com Selenium (ex: Chrome, Firefox)
+- App em **React** hospedado na **Vercel**.
+- UI construída com **MUI (Material UI)** e **MUI X Charts**.
+- Integração direta com Supabase via **`@supabase/supabase-js`**, consumindo apenas a **tabela de resumo diário**.
 
----
+Funcionalidades principais:
 
-## 🚀 Instalação
-
-```bash
-git clone https://github.com/AndreLuis933/IG.git
-cd IG
-```
-
----
-
-## ⚙️ Configuração
-
-<details>
-<summary>Variáveis de ambiente</summary>
-
-1. Crie um banco de dados PostgreSQL local e anote as credenciais.
-2. Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo (ajuste para suas credenciais):
-
-```env
-DATABASE_URL=postgresql+psycopg2://meuusuario:minhasenha@localhost:5432/minhabasededados
-LOCAL=true
-```
-
-- Não é necessário configurar cookies manualmente, a coleta é automática.
-- As tabelas do banco são criadas automaticamente na primeira execução do scraper.
-</details>
+- Seleção de:
+  - **Cidade específica**, ou
+  - **Todas as cidades agregadas**.
+- Filtros por **intervalo de datas** (até 6 meses de janela).
+- Visualização de:
+  - Variação acumulada de preço no período,
+  - Número de produtos disponíveis por dia,
+  - Preço médio diário por cidade.
+- Foco em:
+  - **Carregamento rápido** (sem consultas pesadas),
+  - **Experiência fluida** mesmo com histórico volumoso no backend.
 
 ---
 
-## ▶️ Como Usar
+## 💰 Custos e Escalabilidade
 
-Abra **dois terminais**:
+Todo o desenho foi feito para operar **inteiramente dentro dos tiers gratuitos** de:
 
-- **Terminal 1: Rodando o scraper**
+- **AWS** (Lambda + agendador),
+- **Supabase** (Postgres, Edge Functions, `pg_cron`, Storage),
+- **Vercel** (Front-end),
 
-```bash
-cd scraper
-python -m venv .venv
-# Ative o ambiente virtual:
-# No Windows:
-.venv\Scripts\activate
-# No Linux/Mac:
-source .venv/bin/activate
-
-pip install -r requirements.txt
-cd ..
-python scraper/main.py
- ```
-
-  O scraper irá coletar os dados e salvar no banco de dados local.
-
-- **Terminal 2: Visualização dos dados**
-
-```bash
-cd view
-python -m venv .venv
-# Ative o ambiente virtual:
-# No Windows:
-.venv\Scripts\activate
-# No Linux/Mac:
-source .venv/bin/activate
-
-pip install -r requirements.txt
-cd ..
-streamlit run view/Dashboard.py
-```
-
-  O Streamlit irá buscar os dados automaticamente do banco e exibir a interface interativa.
-
-- **Download dos dados:**  
-  O download dos dados brutos em CSV está disponível diretamente na interface do Streamlit.
-
----
-
-## 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
----
-
-## 🙋‍♂️ Contato
-
-Fique à vontade para abrir uma issue, sugerir melhorias ou só bater um papo sobre dados, scraping e automação!
-
-- **LinkedIn:** [linkedin.com/in/andreluissouzacardoso](https://www.linkedin.com/in/andreluissouzacardoso/)  
-- **GitHub:** [github.com/AndreLuis933](https://github.com/AndreLuis933)
-
-Se quiser saber mais sobre o projeto, contribuir ou trocar ideias, é só chamar!
