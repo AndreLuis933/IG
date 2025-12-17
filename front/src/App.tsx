@@ -83,7 +83,7 @@ function App() {
     <Container maxWidth="md" sx={{ py: 4 }}>
       {isProd && <Analytics />}
       <Typography variant="h4" gutterBottom>
-        Análise de Preços do Supermercado Irmãos Gonçalves
+        Análise de Preços
       </Typography>
 
       {error && (

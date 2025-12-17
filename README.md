@@ -1,8 +1,8 @@
-### 📊 Monitor de Preços Irmão Gonçalves
+### 📊 Price Pulse
 
 ## ✨ Sobre o Projeto
 
-Este projeto é um sistema de **monitoramento diário de preços e disponibilidade** do site Irmão Gonçalves, pensado como **projeto de portfólio** com foco em:
+Este projeto é um sistema de **monitoramento diário de preços e disponibilidade** de um grande supermercado regional, pensado como **projeto de portfólio** com foco em:
 
 - Coletar **centenas de milhares de registros por dia**,
 - Operar **100% em free tier** (AWS, Supabase, Vercel),
@@ -10,7 +10,12 @@ Este projeto é um sistema de **monitoramento diário de preços e disponibilida
 
 A arquitetura foi desenhada para ser **barata, escalável e resiliente**, otimizando o uso de banco de dados com técnicas de **intervalos de vigência** e **retenção de 6 meses** com arquivamento em CSV.
 
-**[🚀 Veja a demo online aqui!](https://analize-ig.vercel.app/)**
+**[🚀 Veja a demo online aqui!](https://price-pulse-dev.vercel.app/)**
+
+---
+## ⚠️ Aviso Importante
+
+Este projeto é **exclusivamente para fins de estudo e demonstração de arquitetura de dados**, e não possui qualquer vínculo oficial com o e-commerce/supermercado monitorado. A coleta de dados é realizada com volume mínimo de requisições para não impactar a infraestrutura do site. Nenhum dado é utilizado para fins comerciais ou de concorrência. Em caso de solicitação dos detentores do site, o projeto será removido ou adaptado.
 
 ---
 
@@ -32,17 +37,17 @@ A arquitetura foi desenhada para ser **barata, escalável e resiliente**, otimiz
 
 O sistema é dividido em três blocos principais que trabalham em conjunto:
 
-### 1. Scraper Diário em Python (AWS Lambda)
+### 1. Pipeline de Coleta Diária em Python (AWS Lambda)
 
 - Função **AWS Lambda (512 MB)** executando **1 vez por dia**, por volta do meio-dia.
-- Coleta dados a partir da **API interna** usada pelo próprio site.
+- Coleta dados a partir da API utilizada pelo próprio site (endpoints JSON).
 - Usa **requisições assíncronas com `aiohttp`**:
   - Até **10 conexões simultâneas**, balanceando velocidade e respeito à infra do site.
 - **Manipulação de cookies por cidade**:
   - Cada chamada é feita com o contexto de cidade correto (11 cidades monitoradas).
 - Domínio monitorado:
   - **17 categorias base** com subcategorias em até **3 níveis**,
-  - Centenas de requisições por dia (cidade × categoria/subcategoria).
+  - 187 requisições por dia (cidade × categoria/subcategoria) para coletar dados de ≈200.000 produtos.
 - Dados coletados (JSON):
   - Nome, link, categoria, imagem do produto,
   - Preço por cidade,
@@ -139,3 +144,8 @@ Todo o desenho foi feito para operar **inteiramente dentro dos tiers gratuitos**
 - **Supabase** (Postgres, Edge Functions, `pg_cron`, Storage),
 - **Vercel** (Front-end),
 
+---
+
+## 📄 Licença
+
+Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
